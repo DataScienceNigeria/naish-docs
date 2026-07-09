@@ -1,0 +1,53 @@
+---
+title: Data Readiness
+description: How the Hub assesses whether the data behind a use case is available, curated, legally usable, and pipeline-ready – often the true pacing constraint rather than compute.
+---
+
+For many national use cases, the binding constraint is **not GPU capacity – it is
+data**. A node can train a model faster than a team can assemble the curated,
+labelled, legally-usable Nigerian dataset that model needs. The Hub's
+data-readiness capability makes this constraint visible early, so a use case is
+not admitted to expensive compute only to stall for want of data.
+
+## Why data readiness leads
+
+Compute is now the abundant resource at NAISH; representative local data is the
+scarce one. Two identified use cases make the point explicitly:
+
+- **AI POCUS** – the primary constraint is the availability of curated Nigerian
+  ultrasound datasets, not compute. The Hub can train the interpretation model,
+  but only once labelled scans exist.
+- **Health Record Digitisation** – dominant costs are data logistics and storage,
+  not GPU time. The full national backlog could reach hundreds of thousands of
+  GPU-hours and would exceed a single node without **phased facility onboarding**
+ – a data-sequencing problem as much as a compute one.
+
+The corollary is encouraging: where investment in data exists, readiness
+is far higher. The [AfricanVoices](/docs/projects-archive/african-voices)
+platform – 1,900 hours of curated speech across Hausa, Igbo, Nigerian Pidgin, and
+Yoruba – means the voice and local-language use cases start with a real corpus
+rather than a blank slate.
+
+## What the assessment covers
+
+- **Availability** – does the dataset exist at all, and who holds it? Is access
+  negotiated?
+- **Quality & labelling** – is it curated, labelled, and consistent enough to
+  train on, or does it need substantial preprocessing first?
+- **Legal & consent** – is it usable under the Nigeria Data Protection Act (NDPA)
+  and the relevant consent terms, especially for sensitive health and financial
+  records?
+- **Pipeline maturity** – can it be staged into the node's 7.6 TB scratch,
+  processed, and archived within a training window, or does moving it dominate the
+  timeline?
+- **Representativeness** – does it reflect Nigerian populations, languages,
+  dialects, and conditions, so the resulting model serves the whole target group
+  rather than a well-sampled subset?
+
+## Where it connects
+
+Data readiness feeds directly into
+[feasibility assessment](/docs/capabilities/feasibility-assessment) (a use case
+with no data path is not feasible yet, regardless of model fit) and into
+[Governance & Risk](/docs/delivery/governance-risk), which already tracks data
+availability as a live dependency for POCUS and health-record digitisation.

@@ -1,0 +1,102 @@
+---
+title: Governance & Risk
+description: The workload-governance framework, clinical and data-readiness gates, GBB physical-readiness dependencies, and the three hosting options under analysis.
+---
+
+Governance is treated as first-class content: the node is a shared, multi-tenant
+resource, and without explicit rules it cannot safely serve seven use cases plus
+open startup and researcher access. This page consolidates the cross-cutting
+governance items and open risks from the advisory record.
+
+## Workload governance framework
+
+The recurring critical dependency across the advisory series is a **workload
+governance framework** – the set of rules that decides who gets GPU time, when,
+and at what priority.
+
+It must formalise, *before any use case enters production*:
+
+- **Quota policies** – how much GPU time, memory, and storage each tenant may
+  hold.
+- **Priority tiers** – which workloads preempt which, and which are protected.
+- **Scheduling rules** – how inference and training windows are placed so they
+  do not collide.
+
+A **formal GPU workload calendar** operationalises this: training and
+fine-tuning are scheduled into off-peak inference windows so perpetual inference
+services are not degraded by heavy batch jobs.
+
+## Clinical safety gate (Self-CAIRE)
+
+<Callout type="error" title="Non-negotiable prerequisite">
+  For the Self-CAIRE digital health coach, clinical fine-tuning plus safety
+  evaluation (estimated ~210 GPU-hours) is a hard pre-deployment gate. The
+  service cannot enter production until RLHF / DPO alignment and safety
+  evaluation are complete.
+</Callout>
+
+This is the highest-criticality use case: it gives health guidance to patients,
+so a failure mode is clinical harm, not just a bad answer.
+
+## Data readiness
+
+For **AI POCUS** and **Health Record Digitisation**, the primary constraint is
+**dataset availability, not compute**. The node can train these models faster
+than usable, curated Nigerian datasets can be assembled – so data pipelines and
+governance, not GPU procurement, are the pacing item.
+
+Health-record digitisation additionally requires **phased facility onboarding**:
+the full national backlog could reach **~310,000+ GPU-hours** and would exceed a
+single node's capacity without phasing across facilities over time.
+
+## GBB physical readiness
+
+Physical hosting depends on the GBB Data Centre being ready for the node's full
+load.
+
+<Callout type="warn">
+  GBB physical readiness for the full **10.2 kW peak draw** (power and cooling)
+  is a live dependency. Remediation findings tracked as **R1–R4** are not yet
+  confirmed complete.
+</Callout>
+
+The node also needs 2× 15 kW metered PDUs and ~1,105 CFM of airflow to reject
+~38,557 BTU/hr – all of which the acceptance power / thermal stress test
+validates against the site.
+
+## Usage-baseline correction
+
+An earlier planning figure of "2 sessions / user / month" **understated
+production demand**. Planning should instead use realistic concurrency – DSN
+suggests **500–1,000 concurrent sessions** for agricultural advisory at national
+pilot scale as a baseline.
+
+## Hosting options under analysis
+
+Three hosting models are under economic analysis:
+
+1. **Full deployment at GBB** – the whole node hosted in Abuja.
+2. **Hybrid / split model** – see the constraint below.
+3. **Commercial data centre** – a third-party facility.
+
+<Callout type="error" title="Hybrid ≠ cluster">
+  The hybrid model is **two independent parallel servers, not a distributed
+  cluster** – a direct consequence of the [HGX single-baseboard
+  constraint](/docs/infrastructure/architecture-notes). The intent is to fold
+  external GPUs back into GBB once R1–R4 remediation is confirmed complete.
+</Callout>
+
+The political / mandate dimension of GBB hosting is framed diplomatically as a
+**strategic alignment** consideration in external documents. A CAPEX / OPEX
+economic-comparison across the three models is in progress, pending confirmed
+market rates and GBB remediation inputs.
+
+## Risk register
+
+| Risk | Status | Mitigation |
+| --- | --- | --- |
+| Workload governance framework not yet formalised | Open – critical | Formalise quotas, tiers, and calendar before any production use case |
+| GBB physical readiness (R1–R4) | Open | Remediation tracked; validated by power / thermal acceptance test |
+| Clinical safety (Self-CAIRE) | Gated | Fine-tuning + safety evaluation required before deployment |
+| Dataset availability (POCUS, Health Records) | Open | Data pipelines and phased onboarding, not more compute |
+| HGX single-baseboard limits distribution | Structural | Hybrid = two parallel servers, not a cluster |

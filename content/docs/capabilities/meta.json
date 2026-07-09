@@ -1,0 +1,13 @@
+{
+  "title": "Hub Capabilities",
+  "pages": [
+    "index",
+    "feasibility-assessment",
+    "data-readiness",
+    "gpu-compute-support",
+    "voice-language-datasets",
+    "model-testing",
+    "ai-governance",
+    "responsible-ai"
+  ]
+}

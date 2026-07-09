@@ -1,0 +1,98 @@
+---
+title: Identified Use Cases
+description: Seven use cases identified for the node, each with sector, model profile, GPU intensity, and the Hub's role.
+---
+
+Seven use cases have been identified and mapped to the node. Each is presented
+with its sector, model profile, GPU intensity, and the Hub's role.
+
+<Callout type="info">
+  **Consolidated demand map:** all seven fit in *pilot* configuration
+  simultaneously. Running every use case at full *production* scale at once would
+  approach node capacity, so production rollout is phased through the scheduler.
+  See [Capacity](/docs/use-cases/capacity).
+</Callout>
+
+## 1. AI-Enabled Agricultural Advisory
+
+<Badge tone="primary">Agriculture</Badge> <Badge tone="warning">Moderate GPU</Badge>
+
+Multilingual chatbot (WhatsApp, Telegram, IVR) for **~38 million smallholder
+farmers**, in Hausa / Yoruba / Igbo. Target model **N-ATLaS-LLM 8B**
+(open-source Nigerian-language model). FarmerChat pilot completed in Delta State
+under the LIFE-ND Project.
+
+- **VRAM:** ~16 GB at FP16 (~9 GB at INT8)
+- **Hub role:** 1 GPU inference (time-sliced) + 1 GPU scheduled for fine-tuning windows
+
+## 2. AI-Based Oral Reading Fluency (ORF) Assessment
+
+<Badge tone="primary">Education</Badge> <Badge tone="warning">Moderate GPU</Badge>
+
+Reading-fluency assessment in local languages for **~86 million early-grade
+learners**. Primary workload is ASR (Whisper-large-v3, ~1.5 GB VRAM) plus a
+lightweight scoring / feedback LLM; ~8–15 GB per active pipeline. Typically
+batch / asynchronous.
+
+- **Hub role:** benefits from CPU threads for audio pre-processing
+
+## 3. AI-Based Liquidity Management for Agents
+
+<Badge tone="primary">Financial inclusion</Badge> <Badge tone="success">Low GPU</Badge>
+
+Forecasting cash / e-float needs for **~2 million mobile-money agents**. Core
+models are lightweight (LSTM / XGBoost / time-series); an optional LLM chatbot
+adds advisory-style inference.
+
+- **Hub role:** &lt;1 GPU (time-sliced); primary need is high-bandwidth networking and CPU / data-pipeline capacity
+
+## 4. Self-CAIRE – Digital Health Coaching
+
+<Badge tone="primary">Health</Badge> <Badge tone="error">Highest safety criticality</Badge> <Badge tone="warning">Moderate–high GPU</Badge>
+
+LLM-powered health coach in the mDoc "Kem" platform for maternal health and
+chronic disease, via WhatsApp and voice – vision to serve **150,000+ members**
+(current pilot ~300 women). Assumed model: a 7–13B (cited up to ~33B)
+instruction-tuned open-source model replacing the current GPT-4 dependency.
+
+- **VRAM:** 14–28 GB at FP16 (9–14 GB at INT8)
+- **Hub role:** 1 GPU inference (time-sliced) + 1 GPU scheduled for clinical fine-tuning
+
+<Callout type="error">
+  Clinical fine-tuning, RLHF / DPO alignment, and safety evaluation are
+  **non-negotiable pre-deployment gates** (est. ~210 GPU-hours).
+</Callout>
+
+## 5. AI Point-of-Care Ultrasound (AI POCUS)
+
+<Badge tone="primary">Health</Badge> <Badge tone="info">High GPU (training)</Badge>
+
+Portable handheld ultrasound with AI interpretation for frontline workers. Edge
+inference runs on the device (Lumify / Android); the **Hub's role is model
+training / fine-tuning** on Nigerian datasets plus a cloud API for
+higher-complexity cases.
+
+- **Hub role:** 1–2 GPUs in batch training windows only (not a persistent reservation); NVLink multi-GPU training directly applicable
+- **Primary constraint:** dataset availability, not compute
+
+## 6. Malaria Intervention Allocation Copilot (ChatMRPT)
+
+<Badge tone="primary">Health</Badge> <Badge tone="success">Low–moderate GPU</Badge>
+
+Decision-support for malaria programme managers across a **218M at-risk
+population**. Hybrid: geospatial ML (gradient boosting, spatial regression) + a
+conversational LLM layer (7–8B, ~16–20 GB VRAM). Low user concurrency (&lt;50).
+
+- **Hub role:** heavier load is CPU / data-pipeline work well-served by 2 TB RAM and 112 threads
+
+## 7. AI-Enabled Health Record Digitisation
+
+<Badge tone="primary">Health</Badge> <Badge tone="warning">Moderate GPU (throughput)</Badge>
+
+OCR + NLP conversion of paper records across **~31,000–33,000 facilities** into
+DHIS2 / EHR-compatible formats. Models: TrOCR / PaddleOCR-class OCR + lightweight
+NLP extraction. Throughput-bound batch workload (an H200 processes thousands of
+pages/hour).
+
+- **Hub role:** 1 GPU, batch-scheduled
+- **Dominant costs:** data logistics and storage, not compute

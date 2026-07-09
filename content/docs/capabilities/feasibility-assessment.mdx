@@ -1,0 +1,51 @@
+---
+title: Use-Case Feasibility Assessment
+description: How the Hub evaluates whether a proposed AI use case is technically viable on the node – model fit, GPU intensity, VRAM footprint, concurrency, and the true binding constraint.
+---
+
+Not every AI idea belongs on shared compute, and the ones that do have
+very different demands. Before a use case is admitted, the Hub runs a
+**feasibility assessment**: teams arrive with a problem and a target population,
+and the Hub determines what model, what memory footprint, what GPU intensity, and
+what scheduling pattern make the workload viable – or whether the real constraint
+lies somewhere other than compute entirely. This is the first capability a use
+case meets, and it is what keeps the node from being over-committed.
+
+## Why it matters on a shared node
+
+On dedicated hardware, feasibility is a private question – a team either has
+enough GPU or it does not. On a **shared, multi-tenant** node it is a collective
+one: admitting a workload that needs two GPUs resident around the clock removes
+that capacity from everyone else. The assessment therefore does not just ask "can
+this run?" but "what does this cost the shared pool, and is that cost justified by
+the use case's impact?"
+
+## What the assessment covers
+
+- **Model fit** – which open-source model family suits the task, and at what
+  parameter scale. The identified use cases span everything from lightweight
+  forecasting models to sub-8B and 7–13B language models (cited up to ~33B for
+  the most demanding).
+- **Memory footprint** – VRAM required at FP16 versus quantised INT8, and whether
+  the model fits alongside other tenants in the shared 1,128 GB of HBM3e.
+  Quantisation is often the difference between a comfortable fit and a tight one.
+- **GPU intensity** – low / moderate / high, and whether the workload is
+  inference-only, training-heavy, or hybrid. This determines whether it can be
+  time-sliced or needs scheduled training windows.
+- **Concurrency** – realistic concurrent-session estimates rather than optimistic
+  per-user averages. An earlier "2 sessions/user/month" figure was corrected
+  because it understated real demand; planning now uses realistic concurrency
+  (e.g. 500–1,000 concurrent sessions for agricultural advisory at pilot scale).
+- **Binding constraint** – crucially, whether the true limit is compute, data,
+  networking, or CPU / RAM. For several use cases it is **not** the GPU (see
+  [Data Readiness](/docs/capabilities/data-readiness)).
+
+## Worked results
+
+The seven identified use cases were each put through this assessment. The output
+per use case – sector, model profile, VRAM, GPU intensity, and the Hub's specific
+role – is documented in [Identified Use Cases](/docs/use-cases), and the shared
+envelope they were assessed against is in [Capacity](/docs/use-cases/capacity).
+The consolidated finding: all seven fit in pilot configuration simultaneously,
+but full production across all at once would approach the node's ceiling, so
+rollout is phased.

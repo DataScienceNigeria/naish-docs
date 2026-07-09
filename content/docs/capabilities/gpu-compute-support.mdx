@@ -1,0 +1,55 @@
+---
+title: GPU / Compute Support
+description: The Hub's core compute capability – shared, governed GPU access on an 8× H200 node, with scheduling, time-slicing, an open-source serving stack, and in-country data residency.
+---
+
+The Hub's foundational capability is **shared, governed GPU access**. A single
+8× NVIDIA H200 SXM5 node is operated as a multi-tenant resource so that startups,
+researchers, and national use cases can reach high-end compute they could not
+economically provision alone. This is the capability that answers the core
+problem NAISH was created to solve – the [compute-access gap](/docs/overview/what-is-naish)
+that has forced Nigerian teams onto expensive foreign cloud, billed in dollars,
+with data leaving the country.
+
+## What the Hub provides
+
+- **High-end accelerators** – 8× H200 SXM5, 1,128 GB total HBM3e, and a 900 GB/s
+  NVLink full-mesh fabric for tightly-coupled multi-GPU training. This is
+  training-grade hardware, not just inference silicon.
+- **Sub-GPU sharing** – time-slicing via the NVIDIA Device Plugin lets one
+  physical GPU serve several lower-intensity inference workloads at once, so
+  small services do not each tie up a whole accelerator.
+- **Scheduled training windows** – the Volcano / Kueue batch schedulers place
+  heavy training and fine-tuning jobs off-peak, on a workload calendar, so
+  perpetual inference services are not degraded by bursty training.
+- **A managed software stack** – Kubernetes, vLLM (high-throughput inference),
+  JupyterHub (notebooks), MLflow (experiment tracking), MinIO (on-node storage),
+  and Keycloak (identity), with Prometheus / Grafana / DCGM telemetry. Teams get
+  a working platform, not bare metal. See
+  [Software & Platform](/docs/infrastructure/software-platform).
+
+## Who it serves
+
+The node is deliberately multi-tenant. It supports the **seven identified use
+cases**, but also broader **startup and researcher access**, and – through the
+[SAID Challenge](/docs/overview/what-is-naish) – startups matched with government
+institutions. Allocation across these tenants is what the governance framework
+exists to arbitrate.
+
+## How this differs from a rented cloud GPU
+
+| | Rented cloud GPU | NAISH shared node |
+| --- | --- | --- |
+| Allocation | First-come, pay-as-you-go | Governed quotas & priority tiers |
+| Billing | Dollar-denominated, per hour | National resource, not per-hour billed to users |
+| Data location | Off-shore | On-node (MinIO), in-country |
+| Support | Self-serve | Embedded technical support |
+
+The governed, sovereign model is the point: it keeps sensitive Nigerian data on
+national infrastructure and directs scarce GPU time toward high-impact national
+use cases rather than whoever swipes a card first.
+
+For the full hardware and capacity picture, see
+[The Compute Node](/docs/infrastructure/compute-node),
+[Workloads](/docs/infrastructure/workloads), and
+[Capacity](/docs/use-cases/capacity).

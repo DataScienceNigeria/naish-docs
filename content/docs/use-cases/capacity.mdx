@@ -1,0 +1,84 @@
+---
+title: Capacity
+description: The node's physical capacity envelope – GPU compute and memory, system RAM, and on-node storage – and how it maps to the identified use cases.
+---
+
+This page describes what the single node physically provides: **GPU compute and
+memory, system RAM, and on-node storage**. These are the fixed resources the
+workload-governance framework allocates across the identified use cases.
+
+## GPU compute
+
+The node carries **eight NVIDIA H200 SXM5 GPUs** on a single HGX baseboard.
+
+| Attribute | Value |
+| --- | --- |
+| GPUs | 8× NVIDIA H200 SXM5 |
+| Per-GPU memory | 141 GB HBM3e |
+| Total GPU memory | 1,128 GB HBM3e |
+| GPU-to-GPU bandwidth | 900 GB/s (NVLink / NVSwitch full-mesh) |
+| Per-GPU TDP | 700 W |
+
+Because the eight GPUs share a full-mesh NVLink fabric, multi-GPU training jobs
+can treat them as a tightly-coupled unit rather than eight isolated
+accelerators – the interconnect is fast enough that gradient synchronisation is
+not the bottleneck. For inference, GPUs are subdivided *logically* through
+time-slicing, so a single physical GPU can serve several concurrent
+lower-intensity workloads.
+
+## GPU memory as the binding constraint
+
+For inference, the practical ceiling is **how many model instances fit in
+1,128 GB of HBM3e at once**, not raw FLOPS. The identified use cases span a wide
+memory footprint:
+
+- Lightweight forecasting / geospatial models – well under 1 GB of VRAM each.
+- ASR (Whisper-large-v3) – ~1.5 GB per pipeline.
+- Sub-20B language models – roughly **9–28 GB** depending on model size and
+  whether weights are served at FP16 or quantised to INT8.
+
+Quantisation (INT8) and vLLM continuous batching are the two levers that raise
+how much concurrent demand a fixed pool of GPU memory can absorb.
+
+## System RAM & CPU
+
+| Attribute | Value |
+| --- | --- |
+| System memory | 2,048 GB (16 × 128 GB) DDR5 ECC/REG |
+| CPU | Dual Intel Xeon Platinum 8570 |
+| Cores / threads | 56 cores / 112 threads each (112 cores / 224 threads total) |
+
+Several use cases are **CPU- and RAM-bound rather than GPU-bound** – geospatial
+ML, data-pipeline preprocessing, audio pre-processing for ORF, and the
+forecasting models behind liquidity management. The 2 TB of RAM and 224 threads
+give substantial headroom for these workloads to run alongside GPU jobs without
+contending for accelerator time.
+
+## On-node storage
+
+| Attribute | Value |
+| --- | --- |
+| OS storage | 1.92 TB NVMe (mirrored) |
+| Scratch storage | 7.6 TB NVMe (4× 1.9 TB U.3) |
+| Object storage | MinIO on-node (S3-compatible) |
+
+The **7.6 TB scratch is finite**, so datasets are staged per training window
+(load → run → archive) rather than held resident. Data logistics – not
+compute – dominate the storage-heavy use cases such as health-record
+digitisation.
+
+## Fit against the identified use cases
+
+<Callout type="info">
+  **All seven identified use cases fit in *pilot* configuration
+  simultaneously.** Running every use case at full *production* scale at once
+  would approach the node's ceiling, so production rollout is phased through the
+  scheduler rather than switched on all at once.
+</Callout>
+
+The reason the node can host this many workloads is that most run at low to
+moderate GPU intensity and are time-sliced, while the genuinely heavy jobs
+(model training / fine-tuning) run in scheduled off-peak windows rather than
+holding a persistent GPU reservation. Meaningful headroom remains for
+additional startup and researcher access **provided the workload-governance
+framework is in place** – see [Governance & Risk](/docs/delivery/governance-risk).

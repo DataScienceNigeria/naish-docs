@@ -1,0 +1,79 @@
+---
+title: Model Selection, Training & Evaluation
+description: The Hub's end-to-end model support – helping teams choose the right model, prepare training and fine-tuning, test on the node, and evaluate quality, local-language performance, and safety before deployment.
+---
+
+The Hub does not just hand a team a GPU and walk away. It supports the **full
+model lifecycle** – helping choose the right model, preparing it for training or
+fine-tuning, testing it on the node, and evaluating it against real quality,
+local-language, and safety bars before anything reaches production. On a shared
+national resource serving health, finance, and education, "it seems to work" is
+not a deployment standard. This page covers the four stages that make it one.
+
+## 1. Model selection support
+
+The first question for any use case is *which model*, and at what size. The Hub
+advises on:
+
+- **Model family & task fit** – matching the workload to an appropriate
+  open-source model (e.g. an 8B Nigerian-language LLM for advisory, Whisper for
+  ASR, a TrOCR/PaddleOCR-class model for document OCR).
+- **Parameter scale** – the identified use cases span lightweight forecasting
+  models through sub-8B and 7–13B language models (cited up to ~33B for the most
+  demanding). Bigger is not automatically better on a shared node.
+- **Precision & quantisation** – FP16 versus INT8, and what each costs in VRAM
+  and quality. Quantisation is often the difference between a comfortable fit and
+  a tight one in the shared 1,128 GB of HBM3e.
+- **Build vs adopt** – whether to fine-tune an open model, adopt one as-is, or
+  replace a proprietary dependency (e.g. moving Self-CAIRE off a GPT-4
+  dependency onto an open, fine-tunable model).
+
+This works hand-in-hand with
+[feasibility assessment](/docs/capabilities/feasibility-assessment), which sizes
+the chosen model against the node's capacity.
+
+## 2. Training & fine-tuning preparation
+
+Once a model is chosen, the Hub helps prepare the training run:
+
+- **Data staging** – loading curated datasets into the node's scratch for the
+  training window, drawing on [data readiness](/docs/capabilities/data-readiness)
+  and corpora such as [AfricanVoices](/docs/projects-archive/african-voices).
+- **Efficient fine-tuning** – LoRA / QLoRA and similar parameter-efficient
+  methods that cut the compute needed to adapt large models.
+- **Scheduling** – placing training and fine-tuning in off-peak
+  [workload](/docs/infrastructure/workloads) windows via Volcano / Kueue, using
+  the full-mesh NVLink fabric for multi-GPU jobs.
+- **Experiment setup** – runs, hyperparameters, and checkpoints tracked in MLflow
+  from the start, so results are reproducible.
+
+## 3. Testing
+
+Testing spans the node and the model:
+
+- **Infrastructure-level** – the node's acceptance plan (see
+  [Deployment](/docs/delivery/deployment)) proves the compute is fit: GPU
+  benchmarks at **≥90% of vendor baseline with no thermal throttling**, CPU
+  throughput, an end-to-end ingest → preprocess → train → infer run within SLA,
+  and telemetry validation.
+- **Functional** – exercising the model through its real pipeline (audio in →
+  transcript → score for ORF; page in → structured record out for digitisation)
+  rather than isolated components.
+
+## 4. Evaluation
+
+Finally, evaluation establishes the model is good enough – and safe enough – to
+deploy:
+
+- **Quality benchmarks** – task-specific accuracy, such as word-error-rate for
+  the ORF ASR pipeline or OCR accuracy for health-record digitisation. Each use
+  case gets metrics that reflect its actual job, not a generic leaderboard.
+- **Local-language evaluation** – performance on Nigerian languages and dialects,
+  not only English benchmarks. A model that scores well in English but poorly in
+  Hausa fails the use case it was built for; AfricanVoices data supports
+  realistic evaluation here.
+- **Safety evaluation** – especially for clinical use. Self-CAIRE requires safety
+  evaluation as a **non-negotiable pre-deployment gate**, tightly linked to
+  [Responsible AI](/docs/capabilities/responsible-ai).
+- **Continuous tracking** – every run, metric, and model version stays in MLflow,
+  so regressions are caught and re-evaluation after retraining is routine.

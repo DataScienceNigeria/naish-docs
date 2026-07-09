@@ -1,0 +1,77 @@
+---
+title: Glossary
+description: Definitions of the acronyms, models, and technical terms used across the NAISH documentation.
+---
+
+Definitions of the acronyms, organisations, models, and technical terms used
+throughout this documentation.
+
+## Organisations & programme
+
+| Term | Definition |
+| --- | --- |
+| **NAISH** | Nigeria AI Scaling Hub – the national AI infrastructure initiative documented here |
+| **FMCIDE** | Federal Ministry of Communications, Innovation & Digital Economy – client / partner |
+| **LBS** | Lagos Business School (Pan-Atlantic University) – primary Gates grant recipient; manages and runs the Hub |
+| **DSN** | Data Science Nigeria – technical implementation partner |
+| **GBB** | Galaxy Backbone – physical hosting provider, Abuja |
+| **NCAIR** | National Centre for AI and Robotics – technical sign-off authority per RFP |
+| **UduTech–Kasi Cloud Consortium** | GPU hardware vendor (Ref: `NAISH/INFRA/GPU-2026-02`) |
+| **Dimagi** | Organisation behind CommCare, the frontline data-collection platform |
+
+## Hardware & infrastructure
+
+| Term | Definition |
+| --- | --- |
+| **H200 SXM5** | NVIDIA data-centre GPU; SXM5 socket form factor with 141 GB HBM3e |
+| **HBM3e** | High-Bandwidth Memory (3rd-gen enhanced) – the on-package GPU memory |
+| **HGX** | NVIDIA's multi-GPU baseboard platform; the 8 GPUs sit on one HGX baseboard |
+| **NVLink / NVSwitch** | NVIDIA's high-bandwidth GPU-to-GPU interconnect fabric (900 GB/s full-mesh here) |
+| **SXM5 vs PCIe** | SXM5 uses the HGX baseboard + NVSwitch (900 GB/s); PCIe is limited to ~64 GB/s over the host bus |
+| **TDP** | Thermal Design Power – the power / heat a component is rated to dissipate |
+| **BTU/hr** | British Thermal Units per hour – heat-rejection rate the cooling system must handle |
+| **CFM** | Cubic Feet per Minute – airflow requirement for cooling |
+| **PDU** | Power Distribution Unit – rack power feed (2× 15 kW metered here) |
+| **IPMI / Redfish** | Out-of-band hardware management interfaces |
+
+## Software & platform
+
+| Term | Definition |
+| --- | --- |
+| **AGH** | Africa GPU Hub – the vendor's optional orchestration layer |
+| **Kubernetes** | Container orchestration platform |
+| **Volcano / Kueue** | Batch scheduling and job-queueing systems for Kubernetes |
+| **Time-slicing** | Splitting a single GPU across multiple workloads logically (via the NVIDIA Device Plugin) |
+| **vLLM** | High-throughput LLM inference server with continuous batching |
+| **JupyterHub** | Multi-user notebook environment |
+| **MLflow** | Experiment and model-tracking system |
+| **MinIO** | S3-compatible object storage, deployed on-node |
+| **Keycloak** | Identity and access-management system |
+| **Prometheus / Grafana / DCGM Exporter** | Metrics collection, dashboards, and GPU telemetry |
+
+## Models & AI terms
+
+| Term | Definition |
+| --- | --- |
+| **N-ATLaS-LLM 8B** | Open-source Nigerian-language large language model (agricultural advisory) |
+| **Whisper-large-v3** | OpenAI's automatic speech-recognition (ASR) model (ORF assessment) |
+| **TrOCR / PaddleOCR** | Optical Character Recognition models (health-record digitisation) |
+| **VRAM** | Video RAM – GPU memory a model occupies while loaded |
+| **FP16 / INT8** | Numeric precisions for model weights; INT8 (quantised) roughly halves VRAM vs FP16 |
+| **LoRA / QLoRA** | Parameter-efficient fine-tuning methods that reduce the compute needed to adapt LLMs |
+| **RLHF / DPO** | Reinforcement Learning from Human Feedback / Direct Preference Optimisation – alignment methods |
+| **ASR** | Automatic Speech Recognition |
+| **OCR / NLP** | Optical Character Recognition / Natural Language Processing |
+
+## Health, data & compliance
+
+| Term | Definition |
+| --- | --- |
+| **DHIS2** | District Health Information System 2 – standard health-data platform |
+| **EHR** | Electronic Health Record |
+| **NDPA** | Nigeria Data Protection Act |
+| **SOC 2 / ISO 27001** | Information-security compliance frameworks |
+| **AI POCUS** | AI Point-of-Care Ultrasound |
+| **ORF** | Oral Reading Fluency |
+| **Self-CAIRE** | The digital health-coaching use case delivered via mDoc's "Kem" platform |
+| **ChatMRPT** | Malaria intervention allocation copilot |

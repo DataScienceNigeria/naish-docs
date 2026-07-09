@@ -1,0 +1,90 @@
+---
+title: GenAIGov
+description: DSN's Generative AI Governance Readiness Assessment Platform (GenAIGov) – a self-assessment tool scoring AI governance maturity across the eight-part STANDARD framework.
+---
+
+**GenAIGov** is DSN's **Generative AI Governance Readiness Assessment Platform** – an interactive web application that lets organisations, public-sector players, and
+developers self-assess how responsibly they build, develop, and deploy AI. It is
+live at [genaigov.ai](https://www.genaigov.ai/en), **developed by DSN and funded
+by the Gates Foundation**, and it directly operationalises the Hub's
+[AI governance](/docs/capabilities/ai-governance) and
+[responsible-AI](/docs/capabilities/responsible-ai) capabilities.
+
+## What it does
+
+Users answer a structured questionnaire across key ethical, regulatory, and
+operational parameters and receive a **readiness score** plus a downloadable
+report and badge reflecting their maturity. The platform supports **white-labeling**
+so state governments can apply their own branding while keeping the core
+assessment intact – letting AI governance scale nationally.
+
+<Callout type="info">
+  This is a **readiness assessment, not a certification** – it provides
+  best-practice insight, not legal or regulatory approval.
+</Callout>
+
+## The STANDARD framework
+
+Assessment runs across eight dimensions – the **STANDARD** framework – tracked
+with a real-time completion indicator (`0/8` → `8/8`):
+
+| # | Dimension | Focus |
+| --- | --- | --- |
+| S | Systems | AI infrastructure & governance frameworks |
+| T | Transparency | Explainability & openness |
+| A | Algorithms | Ethical & responsible AI model development |
+| N | Norms | Legal & industry compliance |
+| D | Deployment | Safe & effective AI implementation |
+| A | Accountability | Responsibility & oversight |
+| R | Risk | Identifying & mitigating AI risks |
+| D | Data | Ethical data collection & security |
+
+Questions are multiple-choice (**Yes / No / I don't know**), scored against
+predefined governance maturity levels and updated dynamically as users progress.
+
+## Scoring, reports & badges
+
+- **Visual readiness score** – Low, Medium, or High.
+- **Downloadable report** – a summarised assessment with improvement
+  recommendations, exportable as PDF for compliance documentation.
+- **Gamified badges** by score tier:
+
+<Stats>
+  <Stat value="Bronze" label="< 50%" />
+  <Stat value="Silver" label="50–89%" />
+  <Stat value="Gold" label="≥ 90%" />
+</Stats>
+
+Users create a lightweight profile (name + email, no password) to keep an
+assessment history, download past reports, and retake the assessment to track
+improvement over time.
+
+## White-labeling & administration
+
+- **White-label** – institutions upload logos and brand colours, set custom
+  intro text, and manage a subdomain (e.g. `aiassessment.lagosstate.gov.ng`).
+- **Admin dashboard** – user management (filter by industry, region, category),
+  assessment analytics (completion rates, average scores, trends), and branding
+  controls; data export as CSV / Excel.
+
+## Technology & compliance
+
+| Layer | Technology |
+| --- | --- |
+| Frontend | Next.js, React – responsive, mobile-first |
+| Backend | Node.js / Python (Django), PostgreSQL |
+| Auth | Auth0 / Firebase (email-based, passwordless) |
+| Infrastructure | Cloud (AWS / Azure / GCP); PDF-generation API; subdomain & branding management |
+| Compliance | Data encryption; GDPR / NDPR; opt-in consent; no data sharing without consent |
+
+## Relevance to NAISH
+
+GenAIGov is the ready-made front door for the Hub's governance posture. Any team
+seeking to run a use case on the NAISH node can be asked to establish AI
+governance readiness first – GenAIGov provides the structured, scored, national
+instrument for that. It also demonstrates DSN's methodology for turning
+responsible-AI principles into an operational, measurable assessment, which the
+Hub's [responsible-AI assessment](/docs/capabilities/responsible-ai) capability
+builds on.
+
+*Developed by Data Science Nigeria (DSN), funded by the Gates Foundation.*

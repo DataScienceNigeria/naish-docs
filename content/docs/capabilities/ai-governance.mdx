@@ -1,0 +1,40 @@
+---
+title: AI Governance
+description: How the Hub governs a shared national compute resource – workload quotas, priority tiers, access control, scheduling policy, and data sovereignty.
+---
+
+Because the node is a single shared national resource serving many tenants, **AI
+governance is a core capability, not an afterthought**. Governance is the set of
+rules that decides who gets compute, when, at what priority, and under what data
+and access controls.
+
+## The workload governance framework
+
+The recurring critical dependency across the advisory record is a formalised
+**workload governance framework**, required *before any use case enters
+production*. It defines:
+
+- **Quota policies** – GPU time, memory, and storage limits per tenant.
+- **Priority tiers** – which workloads preempt which, and which are protected.
+- **Scheduling rules & workload calendar** – training / fine-tuning placed in
+  off-peak inference windows so services are not degraded.
+- **Access & identity** – authentication and role-based access (Keycloak).
+
+## Data sovereignty & access control
+
+Governance also covers where data lives and who can reach it: on-node object
+storage (MinIO) keeps proprietary Nigerian data on national infrastructure, and
+any adoption of the vendor AGH platform requires disclosure of data-residency
+implications first.
+
+See [Governance & Risk](/docs/delivery/governance-risk) for the current risk
+register and hosting-options analysis, and
+[Workloads](/docs/infrastructure/workloads) for how scheduling enforces policy.
+
+## Assessing governance readiness
+
+DSN operates a national instrument for measuring AI governance maturity – **[GenAIGov](/docs/projects-archive/genaigov)**, a live, Gates-funded platform
+that scores organisations across the eight-part **STANDARD** framework (Systems,
+Transparency, Algorithms, Norms, Deployment, Accountability, Risk, Data). Teams
+seeking node access can be asked to establish governance readiness through it
+first.

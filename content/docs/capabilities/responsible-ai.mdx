@@ -1,0 +1,37 @@
+---
+title: Responsible AI Assessment
+description: The Hub's capability to assess safety, fairness, and accountability of deployed models – with the highest bar for clinical and high-stakes national use cases.
+---
+
+The Hub assesses the **responsibility** of the AI it hosts: whether a model is
+safe, fair, accountable, and appropriate for the population it serves. For
+national use cases touching health, finance, and education, responsible-AI
+assessment is a deployment gate, not a nice-to-have.
+
+## What responsible-AI assessment covers
+
+- **Safety** – will the model cause harm if it is wrong? For clinical use
+  (Self-CAIRE), the failure mode is patient harm, so clinical fine-tuning,
+  **RLHF / DPO alignment, and safety evaluation are non-negotiable
+  pre-deployment gates** (est. ~210 GPU-hours).
+- **Fairness & inclusion** – does the model perform equitably across languages,
+  regions, genders, and dialects, rather than only for well-represented groups?
+- **Accountability** – who is responsible for outputs, and how are errors
+  surfaced, escalated, and corrected?
+- **Data protection** – alignment with NDPA and consent for sensitive health and
+  financial data.
+- **Human oversight** – where a human must stay in the loop (e.g. clinical
+  decisions, programme allocation).
+
+## Highest-criticality use cases
+
+The clinical health coach (Self-CAIRE) is the highest-criticality use case and
+sets the bar. Malaria allocation (ChatMRPT) and health-record digitisation also
+carry accountability and data-protection obligations.
+
+## Tooling
+
+DSN's **[GenAIGov](/docs/projects-archive/genaigov)** platform turns
+responsible-AI principles into a measurable, scored self-assessment across the
+eight-part STANDARD framework – a concrete instrument the Hub can require or
+recommend before a use case is deployed.

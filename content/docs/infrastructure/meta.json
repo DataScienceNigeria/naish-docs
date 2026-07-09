@@ -1,0 +1,9 @@
+{
+  "title": "Infrastructure",
+  "pages": [
+    "compute-node",
+    "software-platform",
+    "architecture-notes",
+    "workloads"
+  ]
+}

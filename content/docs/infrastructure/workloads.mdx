@@ -1,0 +1,46 @@
+---
+title: Workloads
+description: How inference, training, and data workloads are allocated across the node under the governed multi-tenant model – and why the allocation pattern matters for capacity.
+---
+
+A single node has to serve many tenants at once without any one of them starving
+the others. The way NAISH achieves this is by recognising that AI workloads are
+not uniform: they fall into three patterns with very different demands on the
+GPUs, and each is allocated differently. Understanding these three patterns is
+the key to understanding how seven use cases plus open access fit on one machine.
+
+## Inference
+
+Inference is the perpetual workload – a live service answering user requests
+around the clock (a farmer's chatbot query, a health-coaching message, a malaria
+allocation question). It runs continuously on sliced GPU partitions, so a single 
+physical GPU is shared logically across several lower-intensity services rather than dedicated to one.
+
+The crucial property is how inference scales with users. Additional users raise
+**concurrency within the vLLM continuous batch** rather than consuming more whole
+GPUs – vLLM packs many simultaneous requests through the same loaded model. This
+is why a sliced 1-GPU allocation produces a **structurally static** annual
+GPU-hour figure regardless of user growth within the target base: more users mean
+a fuller batch, not more GPUs.
+
+## Training / fine-tuning
+
+Training and fine-tuning are the heavy, bursty workloads – adapting a model to
+Nigerian data, running clinical alignment, or fine-tuning an OCR model. These do
+not run perpetually; they run in **scheduled windows** via the Volcano / Kueue
+batch schedulers, ideally off-peak so they do not degrade live inference.
+
+Multi-GPU training is where the node's full-mesh **NVLink fabric** earns its
+keep: gradient synchronisation across GPUs runs at 900 GB/s, so a job can treat
+several GPUs as one tightly-coupled unit. A **formal GPU workload calendar**
+places these windows outside peak inference hours – the single most important
+scheduling discipline for keeping the shared node healthy.
+
+## Data
+
+Every workload needs its data staged close to the GPUs. Persistent data lives in
+**MinIO on the node** (S3-compatible object storage). Because the 7.6 TB NVMe
+scratch is finite, datasets are **staged per training window** – load the dataset,
+run the job, archive the result – rather than held resident. Keeping data on-node
+also serves the sovereignty goal: proprietary Nigerian data does not leave
+national infrastructure to be processed.

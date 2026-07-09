@@ -1,0 +1,37 @@
+---
+title: The Compute Node
+description: The Supermicro SYS-821GE-TNHR platform – eight NVIDIA H200 SXM5 GPUs on a single HGX baseboard, with the full canonical specification.
+---
+
+The proposed platform is the **Supermicro SYS-821GE-TNHR** – an 8U node built
+around eight NVIDIA H200 SXM5 GPUs on a single HGX baseboard. It is a
+purpose-built AI training-and-inference server: not a general workstation with
+GPUs added, but a chassis engineered end-to-end around keeping eight
+700-watt compute accelerators fed with data, power, and cooling simultaneously. 
+
+## Specification
+
+These are the canonical hardware facts an infrastructure reader should treat as
+authoritative.
+
+| Component | Specification |
+| --- | --- |
+| GPU | 8× NVIDIA H200 SXM5, 141 GB HBM3e per GPU, 700 W TDP, NVLink / NVSwitch full-mesh fabric, 900 GB/s GPU-to-GPU bandwidth |
+| Total GPU memory | 1,128 GB HBM3e (8 × 141 GB) |
+| GPU baseboard | NVIDIA HGX (DELTA-NEXT) – single baseboard; 4× NVSwitch chips forming a full-mesh fabric over NVLink 4.0 |
+| CPU | Dual Intel Xeon Platinum 8570, 56 cores / 112 threads each, 350 W TDP, PCIe 5.0 |
+| System memory | 2,048 GB (16 × 128 GB) DDR5 ECC/REG |
+| Local storage | 1.92 TB NVMe (OS, mirrored) + 7.6 TB NVMe scratch (4× 1.9 TB U.3) |
+| Networking | NVIDIA ConnectX-7 VPI, 2× 200 GbE (InfiniBand / Ethernet); 2× 10 GbE management |
+| Power draw | Peak 10.2 kW; 6× 3,000 W redundant (4+2) Titanium PSUs |
+| Thermal | Max heat output ~38,557 BTU/hr; airflow requirement ~1,105 CFM |
+| Form factor | 8U chassis (14″ H × 17.2″ W × 33.2″ D; gross 225 lbs / 102.1 kg); compatible with GBB 48U racks; requires 2× 15 kW PDUs with metering |
+
+
+## Baseline software stack 
+
+*Coming soon*.
+
+## Orchestration
+
+*Coming soon*.

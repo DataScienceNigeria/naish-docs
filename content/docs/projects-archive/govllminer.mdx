@@ -1,0 +1,95 @@
+---
+title: GovLLMiner / AIKano
+description: DSN's Government LLMiner – an offline-first, governance-tuned LLM system (piloted as AIKano for Kano State) that turns unstructured government data into evidence for decision-making.
+---
+
+**Government LLMiner (GovLLMiner)** is DSN's **LLM-powered intelligence platform
+for governance decision-making**, piloted as **AIKano** for Kano State. It turns
+scattered, unstructured government information into an evidence base for faster,
+more accountable, more equitable decisions. It is the clearest example of a
+**governance-tuned, offline-first, locally-hosted LLM** – exactly the class of
+sovereign AI workload the NAISH node is built to run.
+
+## The problem it addresses
+
+Governments struggle with **siloed systems, limited data literacy, and scattered
+unstructured information** that hide critical facts. GovLLMiner unifies documents,
+reports, interviews, community feedback, and operational logs into a **single
+reasoning engine** that extracts meaning, highlights risks, exposes
+inefficiencies, and supports accountable decision-making. Triangulating insight
+across ministries and over time surfaces policy bias, resource leakage,
+underserved communities, and opportunities for improvement.
+
+## What makes it different from a generic LLM
+
+Rather than a general chatbot, it embeds **predefined governance prompt
+templates, domain ontologies, and Retrieval-Augmented Generation (RAG)** over
+verified local data. It reasons using government language, policies, KPI
+structures, and socio-economic frameworks – delivering actionable insight aligned
+with public-sector accountability and equity.
+
+<Callout type="info">
+  **Offline-first by design.** Local GPU and servers eliminate cloud dependence,
+  reduce cost, protect sensitive public data, and enable continuous retraining
+  and uninterrupted access in low-connectivity environments.
+</Callout>
+
+## Government policy workflow
+
+Use cases were mapped to the government policy lifecycle (informed by learnings
+from Singapore):
+
+| Stage | Capabilities |
+| --- | --- |
+| 01 – Policy Formulation | Bias / inclusion-gap detection, thematic & trend analysis, inter-agency consistency check |
+| 02 – Policy Review | Regulatory gap identification, document comparison & evolution tracking, narrative framing & sentiment analysis |
+| 03 – Policy Implementation | Semantic search & retrieval, compliance & legal-risk analysis, structured data extraction for dashboards |
+| 04 – Policy Evaluation | Policy impact traceability, thematic & trend analysis, bias / inclusion-gap analysis |
+
+## AIKano end-to-end solution design
+
+| Pillar | Detail |
+| --- | --- |
+| Model & reasoning stack | Open-source **Qwen** + a **Kano State-tuned Small Language Model** reasoning over internal knowledge via RAG, with ethno-religious guardrails |
+| On-premise / offline GPU | **BIZON X5500** for offline training and inference of **0.5–1.3B-parameter** models, processing up to **1B tokens/day** with full data control |
+| Secure graduated access | Role-based permissions, strict LAN isolation, and usage audits for compliance and traceability |
+| Multimodal data input | Text, audio, and video from documents, reports, policies, and engagement sessions – transcribed, tagged, and indexed |
+| Continuous AI alignment | Learning cycles with new state-specific knowledge, red-team testing, evaluation, and feedback |
+
+## Prompt logic & response tuning
+
+AIKano defines explicit prompt-engineering logic and response requirements per
+use case – for example:
+
+- **Document comparison & evolution tracking** – extract wording / coverage /
+  scope changes; structured change summary with citations, no unsourced
+  assumptions.
+- **Bias detection & inclusion-gap analysis** – scan for missing representation
+  (displaced, female, rural, differently-abled); neutral tone within Kano
+  ethno-religious guardrails; data-driven gaps with mitigations.
+- **Inter-agency consistency check** – 3-tier rating (aligned / partially
+  aligned / conflicting) with harmonisation points.
+- **Regulatory gap identification** – outdated terminology / missing coverage vs
+  current benchmarks.
+- **Data extraction for dashboards** – validated tables of entities, KPIs,
+  budgets, with unit consistency.
+
+## Reproducibility
+
+The project documents a **15-step process** for reproducing the solution across
+other states and use cases – spanning mission targets, model-approach selection,
+a policy & routing gateway, knowledge labelling, retrieval, reliability
+engineering, security, quality/safety guardrails, piloting & measurement,
+systems-of-record integration, local-language & offline support, retention
+governance, and cost control from day one.
+
+## Relevance to NAISH
+
+GovLLMiner is a working proof of **offline-first, governance-tuned LLMs on local
+GPU**. It validates the sovereignty and data-protection logic behind hosting AI
+on national infrastructure, and represents a use-case class – small, fine-tuned,
+locally-governed models – that maps naturally onto the NAISH node's shared
+compute and its [AI governance](/docs/capabilities/ai-governance) and
+[responsible-AI](/docs/capabilities/responsible-ai) capabilities.
+
+*Delivered by Data Science Nigeria (DSN).*
