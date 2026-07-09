@@ -1,0 +1,158 @@
+---
+title: Securing AI-Powered Solutions
+description: A general guide, distilled from reviewing real AI systems, to the security controls and tool-selection choices that make an AI solution safe to deploy at national scale.
+---
+
+Reviewing AI systems built for the Hub surfaces the same lessons again and again.
+This page abstracts them into a reusable guide: **how to review an AI system for
+security, and how to select the tools and architecture that make it safe to
+deploy.** It is deliberately general – a checklist for any team building on the
+Hub.
+
+The pattern behind most findings is simple: teams optimise for a working demo,
+and defer the controls that a multi-tenant, data-sensitive, national deployment
+actually requires. Treat the items below as gates to clear *before* production,
+not clean-up afterwards.
+
+## Security review dimensions
+
+### Authentication & access control
+
+A client-supplied identifier is a **claim, not a credential**. A header such as
+`X-Department-Code` proves nothing – anyone who can reach the API can send it.
+
+- Require real authentication (API keys or tokens) on every endpoint.
+- Scope credentials to a single tenant; store them hashed, never in plain text.
+- Validate on every request; log failed attempts.
+- Assume endpoint URLs and tenant identifiers will be guessed and enumerated.
+
+### Multi-tenant isolation
+
+When one deployment serves many tenants, isolation must hold across **every**
+shared surface, not just the database:
+
+- **Vector store / retrieval** – queries must never return another tenant's chunks.
+- **LLM context** – prompts assembled for one tenant must not leak into another's.
+- **Sessions & caches** – shared in-memory state is a classic leak path.
+- **File processing** – temp files and working directories must be tenant-scoped.
+- **Logs** – often the highest-risk surface, because everything ends up there.
+
+<Callout type="warn">
+  Global mutable caches (plain dictionaries) are **not thread-safe**. Under
+  concurrency they corrupt, and – worse – can swap one tenant's model instance or
+  data for another's. Wrap shared state in locks, add TTLs to bound memory, or
+  use a purpose-built caching library.
+</Callout>
+
+### Input handling
+
+Untrusted input is the most common entry point:
+
+- **Filenames** – sanitise every uploaded filename (strip paths, reject `..` and
+  absolute paths) to prevent path-traversal writes outside the upload directory.
+- **File size** – check the size before reading; cap it; stream large files to
+  disk in chunks rather than loading them into memory. Unbounded uploads are a
+  trivial denial-of-service.
+- **Content type** – validate that a file is what it claims to be.
+
+### Injection
+
+- **SQL** – use an ORM or parameterised queries with bound parameters; never
+  interpolate raw input into SQL.
+- **Prompt injection** – document or user content inserted into a prompt can
+  carry instructions. Delimit instructions from content clearly, sanitise
+  ingested content, and harden system prompts – especially if any external or
+  user-supplied documents are ever processed.
+
+### Rate limiting
+
+Without per-tenant rate limits, a single client can exhaust GPU capacity, flood
+storage, or degrade service for everyone. Set sensible limits per endpoint
+(uploads, queries, session creation).
+
+### CORS & network exposure
+
+Do not ship with `Access-Control-Allow-Origin: *`. Restrict origins to known
+domains, and keep management/telemetry interfaces off the public network.
+
+### Secrets, logging & audit
+
+- Keep secrets in environment variables or a secret manager, never in code.
+- Never log sensitive content – PII, document excerpts, full queries.
+- Do keep an **audit trail**: who accessed which resource, and what was queried.
+  Without it you cannot answer basic compliance or forensic questions.
+
+### Encryption
+
+Plain-text storage is a finding, not a default. Encrypt data **at rest**
+(database and disk) and **in transit** (TLS everywhere). Assume that whoever has
+backup, filesystem, or database access will read everything not encrypted.
+
+### Data retention
+
+"Data lives forever" is a liability. Define a retention policy, automate cleanup,
+and align it with the consent and regulatory terms the data was collected under.
+
+## Tool & architecture selection
+
+Security is shaped as much by *what you choose* as by *how you code it*.
+
+### Data sovereignty: local vs. cloud models
+
+The single most consequential choice. A **cloud LLM API sends every query – and
+the retrieved context around it – to third-party servers**, often off-shore, by
+default. For sensitive or national data this may be unacceptable.
+
+- For sensitive workloads, prefer **locally-hosted open-weight models** served on
+  controlled infrastructure over external API calls.
+- Apply the same test to **embeddings** and any other model call: does the data
+  leave national infrastructure?
+- This is exactly why the Hub exists – sovereign compute keeps data in-country.
+
+### RAG & retrieval design
+
+- Two-stage retrieval with reranking is a sound default for grounded answers.
+- Choose a vector database by data-residency needs (self-hosted vs. managed) as
+  much as by features.
+- Ground answers in retrieved, cited sources to reduce hallucination.
+
+### Concurrency, state & libraries
+
+- Avoid hand-rolled global state; prefer thread-safe, bounded caches.
+- Stream and background-process long tasks (large files, audio transcription)
+  rather than blocking request threads.
+- Reach for **maintained libraries** for security-critical primitives
+  (filename sanitisation, rate limiting, ORM/parameterisation) instead of
+  reinventing them.
+
+### Deployment posture
+
+- Start with a **pilot on low-sensitivity data**, then stage the rollout as
+  controls mature.
+- Harden configuration *before* production, not after the first incident.
+
+## Pre-production hardening checklist
+
+A minimum bar to clear before an AI system serves real, sensitive data:
+
+| Control | Insecure default | Production requirement |
+| --- | --- | --- |
+| Model backend | Cloud API (data leaves) | Local model for sensitive data |
+| Authentication | None / header claim | Per-tenant keys, hashed, validated |
+| Encryption at rest | Disabled / plain text | Enabled (DB + disk) |
+| Transport | Mixed / HTTP | TLS everywhere |
+| Rate limiting | None | Per-tenant, per-endpoint |
+| CORS | `*` | Allow-listed origins |
+| Audit logging | None | Full access + query logging |
+| Data retention | Indefinite | Defined policy + automated cleanup |
+| Shared caches | Global dicts | Thread-safe, TTL-bounded |
+| File uploads | Unbounded, raw name | Size-capped, sanitised, streamed |
+
+## Relevance to NAISH
+
+These are the controls the Hub applies when reviewing and admitting tenant AI
+systems to shared compute. They connect directly to the Hub's
+[AI Governance](/docs/capabilities/ai-governance),
+[Responsible AI](/docs/capabilities/responsible-ai), and
+[Data Readiness](/docs/capabilities/data-readiness) capabilities: sovereign,
+governed, auditable AI is the standard the Hub holds itself and its tenants to.

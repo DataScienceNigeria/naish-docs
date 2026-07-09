@@ -56,6 +56,15 @@ from Singapore):
 | Multimodal data input | Text, audio, and video from documents, reports, policies, and engagement sessions – transcribed, tagged, and indexed |
 | Continuous AI alignment | Learning cycles with new state-specific knowledge, red-team testing, evaluation, and feedback |
 
+## Solution architecture
+
+The end-to-end architecture spans multimodal ingestion (OCR, speech-to-text), a
+RAG pipeline (text splitting, embedding, vector DB, retrieval), fact-checked
+prompt engineering over fine-tuned Llama-3 models, an LLM cache, and a feedback
+loop from the chat interface.
+
+![GovLLMiner / AIKano solution architecture](/govllminer.png)
+
 ## Prompt logic & response tuning
 
 AIKano defines explicit prompt-engineering logic and response requirements per
@@ -92,4 +101,10 @@ locally-governed models – that maps naturally onto the NAISH node's shared
 compute and its [AI governance](/docs/capabilities/ai-governance) and
 [responsible-AI](/docs/capabilities/responsible-ai) capabilities.
 
-*Delivered by Data Science Nigeria (DSN).*
+## Project artifacts
+
+**Code base**
+
+- **AIKano:** [AIKano](https://github.com/DataScienceNigeria/ai-kano)
+- **Backend:** [LLMiner](https://github.com/Equalyz-AI/BizLLMiner)
+- **AskKaduna** [AskKaduna](https://github.com/DataScienceNigeria/askaduna)

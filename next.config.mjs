@@ -6,6 +6,10 @@ const withMDX = createMDX();
 const config = {
   output: 'export',
   reactStrictMode: true,
+  images: {
+    // next/image optimization is unavailable with `output: 'export'`
+    unoptimized: true,
+  },
 };
 
 export default withMDX(config);

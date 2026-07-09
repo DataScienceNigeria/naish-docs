@@ -1,0 +1,148 @@
+---
+title: Dimagi
+description: Dimagi – the social enterprise behind CommCare and Open Chat Studio, a long-standing Gates Foundation partner whose open-source, offline-first, LLM-enabled platforms for frontline health and development work map directly onto several NAISH use cases.
+---
+
+**Dimagi** is a US-based social enterprise (founded 2002, headquartered in
+Cambridge, Massachusetts, with offices in Washington DC, New Delhi, and Cape
+Town) that builds **open-source digital tools for frontline health and
+development work** in low-resource settings. It is a certified B Corporation and
+a public-benefit corporation, and one of the longest-standing technology
+partners in global health. It is included in this archive because its
+platforms – CommCare, Open Chat Studio, CommCare Connect, and SureAdhere – are
+proven, evidence-backed delivery layers for exactly the frontline, offline-first,
+multilingual workloads several NAISH use cases require.
+
+Reference: [dimagi.com](https://dimagi.com/)
+
+<Callout type="info">
+  **Gates Foundation partner.** Dimagi received transformational core funding
+  from the Bill & Melinda Gates Foundation to scale CommCare, and in 2023 won a
+  Gates *Grand Challenges: Catalyzing Equitable AI* grant to build an
+  LLM-powered coach for frontline workers on top of Open Chat Studio (pilot in
+  Malawi). The Gates Foundation is also listed among Open Chat Studio's partners.
+</Callout>
+
+## Reach
+
+<Stats>
+  <Stat value="130+" label="Countries" />
+  <Stat value="76M+" label="Individuals registered" />
+  <Stat value="9" label="African national CHIS deployments" />
+</Stats>
+
+Figures are self-reported by dimagi.com and reflect Dimagi's cumulative
+portfolio; CommCare now runs as the electronic **national community health
+information system in 9 African countries**.
+
+## CommCare
+
+**CommCare** is Dimagi's flagship **open-source, no-code platform** for building
+mobile and web apps for frontline data collection, case management, and program
+delivery. It is designed **offline-first** for challenging, low-connectivity
+environments: frontline workers collect data, manage cases, and access job aids
+without internet, syncing automatically when a connection returns.
+
+Its defining characteristics:
+
+- **Offline-first** – apps work without connectivity and sync on return,
+  essential for rural and low-connectivity deployments.
+- **Longitudinal case management** – tracks individuals, households, or entities
+  over time and links cases across programs and service points (not just one-off
+  form submissions).
+- **Real-time reporting** – dashboards and reports for program managers.
+- **Compliance & security** – HIPAA, GDPR, and SOC 2; two-factor auth and
+  role-based permissions.
+
+<Stats>
+  <Stat value="130+" label="Countries" />
+  <Stat value="100+" label="Peer-reviewed publications" />
+  <Stat value="10,000+" label="Mobile users (single deployment)" />
+</Stats>
+
+CommCare's unusually strong evidence base – **100+ peer-reviewed publications**
+(including randomised controlled trials) – is rare for a frontline platform.
+
+- Product: [dimagi.com/commcare](https://www.dimagi.com/commcare/)
+
+## Open Chat Studio
+
+**Open Chat Studio (OCS)** is Dimagi's **open-source platform for building,
+evaluating, and deploying LLM-powered chatbots** – positioned as "the
+responsible layer between AI and the people it serves." It targets global-health
+and social-impact organisations working in low-resource, low-literacy,
+multilingual, and infrastructure-constrained settings.
+
+Core capabilities:
+
+- **Multi-LLM** – OpenAI, Anthropic, Google Gemini, Azure, Mistral, LLaMA, Groq,
+  and more.
+- **Multi-channel deployment** – WhatsApp, web widget, SMS, Telegram, Messenger,
+  Slack, voice, email, and **CommCare Connect**.
+- **Evaluation tooling** – systematic testing of bot behaviour before it reaches
+  vulnerable users.
+- **RAG / knowledge bases** – ground responses in verified local content.
+
+Open source under a **BSD-3-Clause** license (Django/Celery/PostgreSQL+pgvector
+backend, React/TypeScript frontend).
+
+<Cards>
+  <Card title="OCS website" href="https://www.openchatstudio.com/" description="Marketing site and overview." />
+  <Card title="Source (GitHub)" href="https://github.com/dimagi/open-chat-studio" description="BSD-3-Clause open-source repository." />
+  <Card title="User docs" href="https://docs.openchatstudio.com/" description="Configuration and deployment guides." />
+  <Card title="Developer docs" href="https://developers.openchatstudio.com/" description="APIs and extension points." />
+</Cards>
+
+## Other platforms
+
+### CommCare Connect
+
+A **"pay-for-impact" service-delivery marketplace**: frontline workers learn
+skills, deliver *verified* services, and earn income tied to completed
+interventions rather than planned activity, with transparent payments to local
+organisations and workers. Dimagi reports **1.5M+ services delivered**; a Uganda
+pilot enrolled **675+ newborns**, ran **1,400 home visits**, and disbursed
+**$20,000+** to workers.
+
+### SureAdhere
+
+A **virtual care platform for medication adherence** – video Directly Observed
+Therapy for tuberculosis and other infectious diseases. Dimagi reports **96% TB
+treatment completion** and a body of publications that have informed **CDC and
+WHO TB treatment guidelines**.
+
+### Gates Grand Challenges – LLM coach for frontline workers
+
+Dimagi's flagship AI initiative (2023): *"Closing the Supervision Gap: An
+LLM-Powered Coach for Frontline Workers,"* built on Open Chat Studio and CommCare
+infrastructure, piloted in Malawi – one of ~50 Gates *Catalyzing Equitable AI*
+grants.
+
+- Announcement: [dimagi.com/grand-challenges-catalyzing-equitable-ai](https://dimagi.com/grand-challenges-catalyzing-equitable-ai/)
+
+## Relevance to NAISH
+
+Dimagi's stack is a proven delivery layer for the frontline, offline-first,
+multilingual, case-management workloads several NAISH use cases require:
+
+- **Self-CAIRE digital health coaching** – CommCare case management + an Open
+  Chat Studio LLM assistant map directly onto tracking members and health
+  interactions over time.
+- **Health-record digitisation** – CommCare's structured capture and case
+  management complement an OCR/NLP pipeline converting paper records into
+  DHIS2/EHR formats.
+- **Agricultural advisory** – frontline extension-worker apps are a native
+  CommCare pattern; OCS adds a multilingual conversational layer.
+
+Rather than build bespoke frontline apps and chatbots, use-case teams can adopt
+or integrate Dimagi's evidence-backed, open-source platforms and focus NAISH GPU
+capacity on the AI/model layer – with a shared Gates Foundation lineage easing
+partnership.
+
+## Links
+
+- [Dimagi](https://dimagi.com/)
+- [CommCare](https://www.dimagi.com/commcare/)
+- [Open Chat Studio](https://www.openchatstudio.com/) · [GitHub](https://github.com/dimagi/open-chat-studio) · [Docs](https://docs.openchatstudio.com/)
+- [Grand Challenges: Catalyzing Equitable AI](https://dimagi.com/grand-challenges-catalyzing-equitable-ai/)
+- [Dimagi on Wikipedia](https://en.wikipedia.org/wiki/Dimagi)

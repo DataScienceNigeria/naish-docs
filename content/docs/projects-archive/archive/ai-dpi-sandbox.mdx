@@ -3,8 +3,8 @@ title: AI-DPI Sandbox
 description: DSN's AI-DPI Sandbox, Product Design and Technical Support project – a managed cloud environment and residency that helped Nigerian startups build AI on Digital Public Infrastructure.
 ---
 
-The **AI-DPI Sandbox – Product Design and Technical Support** project is DSN's
-grant-funded programme to accelerate **responsible, inclusive, and scalable
+The **AI-DPI Sandbox – Product Design and Technical Support** project is conducted by CcHub, DSN and DIAL, 
+funded by Gates Foundation to accelerate **responsible, inclusive, and scalable
 adoption of Artificial Intelligence (AI) and Nigeria's Digital Public
 Infrastructure (DPI)** by early-stage startups and innovators. It is the direct
 antecedent to NAISH: it proved the model of pairing shared, managed
@@ -25,9 +25,9 @@ reduced time-to-market, lowered cost barriers, and de-risked early experimentati
 
 A fully managed, secure, **API-based sandbox environment** unifying:
 
-- **AI services** – model and GPU access to accelerate experimentation.
-- **Nigerian DPI platforms** – a mini "Nigerian DPI stack" exposing open-source
-  tools (e.g. DHIS2, PostgreSQL), APIs (e.g. identity), and apps (e.g. QR code,
+- **AI services** – managed LLM and GPU access to accelerate experimentation.
+- **Nigerian DPI platforms** – a mini "Nigerian DPI stack" exposing DPI (e.g., NIN, BVN, Liveness), 
+  open-source tools (e.g. DHIS2, PostgreSQL), APIs (e.g. Maps), and apps (e.g. QR code,
   notifications).
 - **Network services** – SMS, USSD, IVR, and voice channels.
 
@@ -46,18 +46,6 @@ Beyond infrastructure, innovators received hands-on support:
    AWS, GCP) for solution development and model training.
 5. **Expert access & residency** – a 2-week intensive residency plus ongoing
    expert sessions on product design, AI, DPI, and integrating AI into DPI.
-
-## Technology stack
-
-| Layer | Technology |
-| --- | --- |
-| Frontend | React, Tailwind |
-| Backend | Node.js / Next, FastAPI |
-| Auth | OAuth2 – SSO, MFA, role-based access control (RBAC), API-key management |
-| Monitoring | Prometheus, node / service exporters, Grafana, Jaeger / OpenTelemetry |
-| Caching | Redis – sessions, API/response & full-page caching, pub/sub, rate limiting |
-| Search | Elasticsearch, Kibana, Logstash / Beats |
-| Deployment | Docker, helmfile; staging + production; Azure cloud |
 
 ## Residency programme
 
@@ -104,3 +92,10 @@ demand for **shared infrastructure + embedded support**; NAISH supplies the
 missing piece – a **sovereign, high-end GPU node** – so that the next generation
 of this model runs on national compute rather than rented cloud. This
 documentation site itself is modelled on the DSN AI-DPI Sandbox knowledge base.
+
+## Project artifacts
+
+**Code base**
+
+- **Frontend:** [Data-Science-Nigeria/ai-dpi-sandbox-frontend](https://github.com/Data-Science-Nigeria/ai-dpi-sandbox-frontend)
+- **Backend:** [Data-Science-Nigeria/ai-dpi-sandbox-backend](https://github.com/Data-Science-Nigeria/ai-dpi-sandbox-backend)

@@ -1,0 +1,102 @@
+---
+title: Masakhane
+description: Masakhane – the grassroots pan-African NLP collective building open datasets, models, and benchmarks for African languages, including Nigerian languages and health-relevant resources directly reusable by NAISH.
+---
+
+**Masakhane** ("we build together" in isiZulu) is a **grassroots, pan-African
+research collective** strengthening natural-language processing for African
+languages – *"for Africans, by Africans."* Since ~2019 it has grown from a
+machine-translation effort into a community producing open datasets, models, and
+benchmarks across translation, named-entity recognition, news classification,
+question answering, part-of-speech tagging, and speech. It is included in this
+archive because its artifacts already cover the major **Nigerian languages** and
+include **health-relevant** resources that NAISH language use cases can reuse
+directly rather than rebuild.
+
+Reference: [masakhane.io](https://www.masakhane.io/)
+
+<Callout type="info">
+  **Participatory, community-owned.** Masakhane works openly (Slack, weekly
+  meetings, Colab notebooks) through "participatory research" and "data
+  archeology" – co-creating datasets and models with researchers, linguists, and
+  language communities. Its model for ethically sourcing local-language data is a
+  reusable template for Nigerian health-language work.
+</Callout>
+
+## Scale
+
+<Stats>
+  <Stat value="1,000+" label="Contributors" />
+  <Stat value="30+" label="Countries" />
+  <Stat value="38+" label="African languages" />
+</Stats>
+
+Figures are self-reported by masakhane.io and grow over time. Masakhane's
+collaborative papers appear at top venues (ACL, EMNLP, NAACL, ICLR AfricaNLP),
+and its Masakhane MT web interface received a **2021 Wikimedia Foundation
+Research Award**.
+
+## Projects
+
+<Cards>
+  <Card title="Masakhane MT / MMT" href="https://github.com/masakhane-io/masakhane-mt" description="The founding effort: community-built neural machine-translation models and benchmarks across dozens of African languages." />
+  <Card title="Decolonise Science" href="https://www.masakhane.io/ongoing-projects/masakhane-mt-decolonise-science" description="Machine translation of scientific text into African languages so science can be discussed in indigenous languages." />
+  <Card title="MasakhaNER" href="https://arxiv.org/abs/2210.12391" description="'Know Our Names' – the largest human-annotated African NER corpus; MasakhaNER 2.0 spans 20 languages." />
+  <Card title="MasakhaNEWS" href="https://arxiv.org/abs/2304.09972" description="News-topic classification across 16 African languages, including a health category." />
+  <Card title="MAFAND-MT" href="https://arxiv.org/abs/2205.02022" description="Human-translated news-domain parallel MT dataset for 16 African languages." />
+  <Card title="AfriQA" href="https://arxiv.org/abs/2305.06897" description="First cross-lingual open-retrieval QA dataset for African languages – 12,000+ examples across 10 languages." />
+  <Card title="MasakhaPOS" href="https://arxiv.org/abs/2305.13989" description="Part-of-speech tagging for typologically diverse African languages." />
+</Cards>
+
+## Datasets & artifacts
+
+Masakhane publishes openly on **Hugging Face** and **GitHub** – hundreds of
+models and datasets, most built on African-language pretrained models such as
+AfroXLMR.
+
+- **Hugging Face org** – [huggingface.co/masakhane](https://huggingface.co/masakhane)
+  - [masakhane/masakhanews](https://huggingface.co/datasets/masakhane/masakhanews) – news classification (incl. health category)
+  - [masakhane/afriqa](https://huggingface.co/datasets/masakhane/afriqa) – cross-lingual QA
+  - AfriMMLU / AfriMGSM – multilingual understanding & math benchmarks
+  - **AfrIFact** – multilingual retrieval & fact-checking benchmark explicitly covering **healthcare** content
+  - AfriCOMET / AfriMTE – MT evaluation metrics for African languages
+- **GitHub org** – [github.com/masakhane-io](https://github.com/masakhane-io)
+  ([masakhane-mt](https://github.com/masakhane-io/masakhane-mt),
+  [masakhane-ner](https://github.com/masakhane-io/masakhane-ner),
+  [lafand-mt](https://github.com/masakhane-io/lafand-mt),
+  [afriqa](https://github.com/masakhane-io/afriqa),
+  [masakhane-pos](https://github.com/masakhane-io/masakhane-pos))
+
+Key papers: [MasakhaNER](https://arxiv.org/abs/2103.11811) ·
+[MasakhaNER 2.0](https://arxiv.org/abs/2210.12391) ·
+[MasakhaNEWS](https://arxiv.org/abs/2304.09972) ·
+[MAFAND-MT](https://arxiv.org/abs/2205.02022) ·
+[AfriQA](https://arxiv.org/abs/2305.06897) ·
+[AfroBench: How good are LLMs on African languages?](https://arxiv.org/abs/2311.07978)
+
+## Relevance to NAISH
+
+- **Nigerian-language coverage** – Hausa, Yoruba, Igbo, and Nigerian Pidgin
+  appear across MAFAND-MT, MasakhaNER, MasakhaNEWS, and AfriQA – the exact
+  languages needed for frontline health communication in Nigeria.
+- **Health-specific artifacts** – MasakhaNEWS includes a **health** topic
+  category and **AfrIFact** spans **healthcare** content, useful for building
+  trustworthy health QA and combating health misinformation in local languages.
+- **Low-resource MT & QA foundations** – MAFAND-MT and AfriQA provide parallel
+  data and cross-lingual QA to translate health guidance and answer patient /
+  community-health-worker questions.
+- **Speech / ASR** – the **Masakhane African Languages Hub** (co-funded by the
+  Gates Foundation, Google.org, and others) is building large-scale,
+  culturally-grounded ASR/voice datasets for African languages, explicitly
+  citing speech-based health services – a strong strategic and funding alignment
+  for NAISH.
+
+Rather than commission new Nigerian-language corpora from scratch, NAISH language
+use cases can adopt Masakhane's open datasets, models, and participatory data
+model – and partner through the shared Gates-funded Hub.
+
+## Links
+
+- [Masakhane](https://www.masakhane.io/) · [Projects](https://www.masakhane.io/masakhane-african-languages-hub/projects)
+- [Hugging Face](https://huggingface.co/masakhane) · [GitHub](https://github.com/masakhane-io)
+- [Masakhane African Languages Hub (IDRC)](https://idrc-crdi.ca/en/what-we-do/projects-we-support/project/masakhane-ai-languages-hub)
