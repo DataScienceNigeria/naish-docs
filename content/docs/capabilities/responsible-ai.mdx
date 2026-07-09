@@ -10,10 +10,10 @@ assessment is a deployment gate, not a nice-to-have.
 
 ## What responsible-AI assessment covers
 
-- **Safety** – will the model cause harm if it is wrong? For clinical use
-  (Self-CAIRE), the failure mode is patient harm, so clinical fine-tuning,
+- **Safety** – will the model cause harm if it is wrong? For clinical use for example, 
+the failure mode is patient harm, so clinical fine-tuning,
   **RLHF / DPO alignment, and safety evaluation are non-negotiable
-  pre-deployment gates** (est. ~210 GPU-hours).
+  pre-deployment gates**.
 - **Fairness & inclusion** – does the model perform equitably across languages,
   regions, genders, and dialects, rather than only for well-represented groups?
 - **Accountability** – who is responsible for outputs, and how are errors
@@ -23,15 +23,10 @@ assessment is a deployment gate, not a nice-to-have.
 - **Human oversight** – where a human must stay in the loop (e.g. clinical
   decisions, programme allocation).
 
-## Highest-criticality use cases
-
-The clinical health coach (Self-CAIRE) is the highest-criticality use case and
-sets the bar. Malaria allocation (ChatMRPT) and health-record digitisation also
-carry accountability and data-protection obligations.
 
 ## Tooling
 
-DSN's **[GenAIGov](/docs/projects-archive/genaigov)** platform turns
+DSN's **[GenAIGov](/docs/projects-archive/archive/genaigov)** platform turns
 responsible-AI principles into a measurable, scored self-assessment across the
 eight-part STANDARD framework – a concrete instrument the Hub can require or
 recommend before a use case is deployed.

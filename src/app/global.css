@@ -53,3 +53,25 @@ pre,
 samp {
   font-family: var(--font-mono, ui-monospace, monospace);
 }
+
+/* GitBook-style sidebar: only TOP-LEVEL folders (padding depth `2`) render as
+   uppercase, static section headers. Nested folders (e.g. Project Archive) stay
+   normal, collapsible dropdowns. */
+#nd-sidebar button[aria-expanded][style*="calc(2 * var(--spacing))"] {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-fd-muted-foreground);
+  margin-top: 1.25rem;
+  pointer-events: none;
+}
+
+#nd-sidebar button[aria-expanded][style*="calc(2 * var(--spacing))"]:hover {
+  background: transparent;
+}
+
+/* hide the collapse chevron on those top-level section headers only */
+#nd-sidebar button[aria-expanded][style*="calc(2 * var(--spacing))"] > svg {
+  display: none;
+}

@@ -66,19 +66,3 @@ The **7.6 TB scratch is finite**, so datasets are staged per training window
 (load → run → archive) rather than held resident. Data logistics – not
 compute – dominate the storage-heavy use cases such as health-record
 digitisation.
-
-## Fit against the identified use cases
-
-<Callout type="info">
-  **All seven identified use cases fit in *pilot* configuration
-  simultaneously.** Running every use case at full *production* scale at once
-  would approach the node's ceiling, so production rollout is phased through the
-  scheduler rather than switched on all at once.
-</Callout>
-
-The reason the node can host this many workloads is that most run at low to
-moderate GPU intensity and are time-sliced, while the genuinely heavy jobs
-(model training / fine-tuning) run in scheduled off-peak windows rather than
-holding a persistent GPU reservation. Meaningful headroom remains for
-additional startup and researcher access **provided the workload-governance
-framework is in place** – see [Governance & Risk](/docs/delivery/governance-risk).

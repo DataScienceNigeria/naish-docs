@@ -1,5 +1,5 @@
 ---
-title: Model Selection, Training & Evaluation
+title: Model Lifecycle Support
 description: The Hub's end-to-end model support – helping teams choose the right model, prepare training and fine-tuning, test on the node, and evaluate quality, local-language performance, and safety before deployment.
 ---
 
@@ -38,7 +38,7 @@ Once a model is chosen, the Hub helps prepare the training run:
 
 - **Data staging** – loading curated datasets into the node's scratch for the
   training window, drawing on [data readiness](/docs/capabilities/data-readiness)
-  and corpora such as [AfricanVoices](/docs/projects-archive/african-voices).
+  and corpora such as [AfricanVoices](/docs/projects-archive/archive/african-voices).
 - **Efficient fine-tuning** – LoRA / QLoRA and similar parameter-efficient
   methods that cut the compute needed to adapt large models.
 - **Scheduling** – placing training and fine-tuning in off-peak
@@ -49,16 +49,28 @@ Once a model is chosen, the Hub helps prepare the training run:
 
 ## 3. Testing
 
-Testing spans the node and the model:
+Testing spans two layers: the node itself, and the model running on it.
 
-- **Infrastructure-level** – the node's acceptance plan (see
-  [Deployment](/docs/delivery/deployment)) proves the compute is fit: GPU
-  benchmarks at **≥90% of vendor baseline with no thermal throttling**, CPU
-  throughput, an end-to-end ingest → preprocess → train → infer run within SLA,
-  and telemetry validation.
-- **Functional** – exercising the model through its real pipeline (audio in →
-  transcript → score for ORF; page in → structured record out for digitisation)
-  rather than isolated components.
+### Infrastructure-level testing
+
+Before any model runs, the node must be proven fit. The hardware acceptance plan
+verifies this through:
+
+- **GPU benchmarks** – ResNet50 plus transformer micro-benchmarks, required to
+  reach **≥90% of the vendor baseline with no thermal throttling**. Throttling
+  under sustained load would silently halve real-world throughput, so this gate
+  matters.
+- **CPU throughput** – a 60-minute sustained test across the dual-Xeon platform.
+- **End-to-end pipeline** – a full ingest → preprocess → train → infer run inside
+  the agreed SLA, proving the whole path, not just isolated components.
+- **Telemetry validation** – confirming Prometheus / DCGM streams are live so
+  performance and health are observable in production.
+
+### Functional testing
+
+Exercising the model through its real pipeline – audio in → transcript → score
+for ORF; page in → structured record out for digitisation – rather than isolated
+components, so integration problems surface before users hit them.
 
 ## 4. Evaluation
 

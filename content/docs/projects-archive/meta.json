@@ -1,11 +1,7 @@
 {
-  "title": "Projects Archive",
+  "title": "Projects",
   "pages": [
-    "index",
-    "ai-dpi-sandbox",
-    "govllminer",
-    "genaigov",
-    "african-voices",
-    "commcare"
+    "identified-use-cases",
+    "archive"
   ]
 }

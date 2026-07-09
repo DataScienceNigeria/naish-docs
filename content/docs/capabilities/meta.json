@@ -1,5 +1,5 @@
 {
-  "title": "Hub Capabilities",
+  "title": "Capabilities",
   "pages": [
     "index",
     "feasibility-assessment",
@@ -8,6 +8,7 @@
     "voice-language-datasets",
     "model-testing",
     "ai-governance",
-    "responsible-ai"
+    "responsible-ai",
+    "governance-risk"
   ]
 }
