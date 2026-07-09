@@ -1,0 +1,68 @@
+---
+title: EdoDiDA Chatbot
+description: DSN's Gates-funded natural-language chatbot built on DHIS2 for the Edo State Digital Governance and Data Management Agency, turning government data into plain-language insight for decision-makers.
+---
+
+The **EdoDiDA Chatbot** is a natural-language interface built on top of **DHIS2**
+for the **Edo State Digital Governance and Data Management Agency (EdoDiDA)**.
+Delivered by **Data Science Nigeria** with **Gates Foundation** support, it lets
+non-technical government users query a DHIS2 database in plain English and get
+back answers with a table, a visual breakdown, and a written explanation. It is a
+concrete example of putting conversational AI on top of a national data platform
+so that data actually reaches the people making decisions.
+
+## What it does
+
+EdoDiDA **democratises data access** for quick, real-world decision-making. Rather
+than requiring dashboards or SQL, a user asks a question in natural language and
+the chatbot:
+
+- Translates the question into a query against the DHIS2 data.
+- Returns the underlying **data table**.
+- Produces a **visual breakdown** of the result.
+- Adds a plain-language **explanation and context** – "snackable insights" that
+  highlight what the numbers mean.
+- Where relevant, offers **recommendations** (e.g. resource allocation).
+
+![EdoDiDA Chatbot – natural-language access to DHIS2 data, embedded in DHIS2](/edodida-home.png)
+
+## Example interactions
+
+The chatbot works across sectors covered by the state's DHIS2 data.
+
+**Ask a question, get a visual breakdown.** "Plot malaria cases by LGA" returns a
+chart straight from the state's health data:
+
+![Malaria cases by LGA, plotted by EdoDiDA](/edodida-chart.png)
+
+**Ask for analysis, get plain-language insight.** "How is the farming population
+distributed across each LGA?" returns per-LGA figures plus an explanation that
+flags high, moderate, and low-participation areas to guide targeted intervention:
+
+![EdoDiDA explanation of farming population distribution](/edodida-explain.png)
+
+Beyond agriculture and health, it handles cross-sector questions such as teacher
+allocation – returning figures per LGA plus recommendations that prioritise
+high-enrolment and under-resourced areas.
+
+## Why it matters
+
+- **Data democratisation** – turns a specialist data platform (DHIS2) into
+  something any policymaker can interrogate conversationally.
+- **Decision support** – pairs raw figures with interpretation and
+  recommendations, closing the gap between data and action.
+- **Grounded answers** – responses are drawn from the government's own DHIS2
+  records, not generic knowledge.
+
+## Relevance to NAISH
+
+EdoDiDA is a template for **conversational access to government Digital Public
+Infrastructure**. DHIS2 is the same platform the Hub's
+[health-record digitisation](/docs/projects-archive/identified-use-cases) use
+case targets, and the natural-language-over-DHIS2 pattern generalises to other
+national datasets. It exercises the Hub's
+[data readiness](/docs/capabilities/data-readiness) and
+[model lifecycle](/docs/capabilities/model-testing) capabilities, and – run on
+sovereign compute – keeps sensitive state data in-country.
+
+*Built by Data Science Nigeria (DSN), supported by the Gates Foundation, on DHIS2.*

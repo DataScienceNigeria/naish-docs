@@ -1,0 +1,77 @@
+---
+title: DiCert MCP
+description: DSN's MCP server that sits as an AI-DPI middleware layer over a DPI platform, exposing its data as secure, callable tools so AI workflows and voice agents can interact with DPI safely.
+---
+
+**DiCert MCP** is a [Model Context Protocol (MCP)](https://modelcontextprotocol.io)
+server that sits **on top of a Digital Public Infrastructure (DPI) platform** and
+exposes its data as secure, callable tools for AI workflows. It is the middleware
+pattern that lets AI clients – voice agents, chatbots, autonomous agents –
+interact with a DPI and its data **through a governed interface** rather than
+touching the raw database. The reference implementation runs over **DiCert**,
+Nigeria's credentialing platform for primary and secondary schools.
+
+![DiCert MCP Server – academic credentialing tools exposed over MCP for AI clients](/dicert-mcp.png)
+
+## The pattern: AI-DPI middleware
+
+DPI platforms hold sensitive national data behind their own schemas and access
+rules. Letting an AI model query them directly is neither safe nor practical. An
+MCP server solves this by acting as a **standardised, governed layer** between AI
+clients and the DPI:
+
+- It connects to the DPI data store, **normalises** the data into clean shapes an
+  LLM can use, and serves it over a standard MCP interface (HTTP / SSE).
+- AI clients **discover** the available tools and call them – they never see raw
+  credentials or issue arbitrary queries.
+- Access can be gated with an API key, and the exposed surface is limited to
+  purpose-built read tools rather than open database access.
+
+This is exactly the interaction model NAISH wants for AI-on-DPI: capable, but
+bounded and auditable.
+
+## What DiCert MCP exposes
+
+Over the DiCert credentialing data, the server offers tools such as:
+
+| Tool | Purpose |
+| --- | --- |
+| `lookup_student` / `find_students` | Look up or search students by ID, name, school, class, or year |
+| `fetch_term_report` | Full term report – subjects, attendance, psychomotor, behavioural, teacher comments |
+| `fetch_student_history` | Complete academic history across terms |
+| `fetch_class_performance` | Class-wide breakdown with per-subject averages, for teachers |
+| `fetch_regional_result` / `search_regional_results` | Regional / external examination certification records |
+| `fetch_regional_school_summary` | School-level pass and verification statistics |
+| `get_ai_recommendation` | AI-generated personalised feedback for a student, parent, or teacher |
+
+## Architecture
+
+```
+Voice Agent / AI Client
+        ↓  MCP over HTTP/SSE
+DiCert MCP Server (AI-DPI middleware)
+        ↓  async SQLAlchemy
+DPI data store (PostgreSQL views)
+        ↓
+AI-generated feedback
+```
+
+Different AI personas call the same tools for different ends – a **parent**
+checking a child's results, a **teacher** reviewing class performance and
+spotting students needing intervention, an **administrator** pulling regional
+verification statistics.
+
+## Relevance to NAISH
+
+DiCert MCP is the **secure connective tissue between AI and DPI** that the Hub's
+mission depends on. It shows how AI workflows can act on national data platforms
+without unsafe direct access – aligning with the Hub's
+[AI Governance](/docs/capabilities/ai-governance) and
+[Securing AI-Powered Solutions](/docs/projects-archive/archive/securing-ai-systems)
+principles (bounded tool surfaces, API-key gating, normalised read views over raw
+data). It continues the AI-DPI lineage of the
+[AI-DPI Sandbox](/docs/projects-archive/archive/ai-dpi-sandbox): where the sandbox
+gave startups access to DPI building blocks, DiCert MCP gives AI agents a safe way
+to *use* them.
+
+*Built by Data Science Nigeria (DSN).*
