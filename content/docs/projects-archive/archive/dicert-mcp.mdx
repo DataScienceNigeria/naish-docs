@@ -44,17 +44,6 @@ Over the DiCert credentialing data, the server offers tools such as:
 | `fetch_regional_school_summary` | School-level pass and verification statistics |
 | `get_ai_recommendation` | AI-generated personalised feedback for a student, parent, or teacher |
 
-## Architecture
-
-```
-Voice Agent / AI Client
-        ↓  MCP over HTTP/SSE
-DiCert MCP Server (AI-DPI middleware)
-        ↓  async SQLAlchemy
-DPI data store (PostgreSQL views)
-        ↓
-AI-generated feedback
-```
 
 Different AI personas call the same tools for different ends – a **parent**
 checking a child's results, a **teacher** reviewing class performance and
