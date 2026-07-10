@@ -41,7 +41,3 @@ content/docs/
                          Securing AI-Powered Solutions
   reference/             Glossary
 ```
-
-Sidebar sections (sidebar group titles) come from each folder's `meta.json`
-`title`; top-level sections render as uppercase, always-open headers. Nested
-folders (e.g. Projects Archive) are collapsible dropdowns.
