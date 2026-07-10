@@ -45,25 +45,3 @@ content/docs/
 Sidebar sections (sidebar group titles) come from each folder's `meta.json`
 `title`; top-level sections render as uppercase, always-open headers. Nested
 folders (e.g. Projects Archive) are collapsible dropdowns.
-
-## Editing
-
-- Add a page: create `content/docs/<section>/<page>.mdx` with `title` +
-  `description` frontmatter, and add its slug to that section's `meta.json`.
-- Custom components available in MDX: `<Stats>`, `<Stat>`, `<Badge>`, plus
-  Fumadocs `<Cards>`, `<Card>`, `<Callout>`.
-- Images: put them in `public/` and reference by root path (e.g.
-  `![alt](/govllminer.png)`). `next.config.mjs` sets `images.unoptimized`
-  (required for static export).
-- Theme tokens (Nigeria-green primary) live in `src/app/global.css`; sidebar
-  section styling is there too.
-- Logo lives at `public/naish-mark.png` (nav) and `src/app/icon.png` (favicon).
-- Site name and GitHub target live in `src/lib/shared.ts` – update `gitConfig`
-  when transferring to the Hub's repository.
-
-## House style
-
-- **Source fidelity.** Every figure is traceable to a NAISH source document or a
-  public announcement. Indicative / pending values are labelled as such. Project
-  costing and contract values are intentionally excluded.
-- **Punctuation.** Use spaced en-dash ` – `, not em-dashes.
