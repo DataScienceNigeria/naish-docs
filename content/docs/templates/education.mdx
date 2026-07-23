@@ -1,0 +1,42 @@
+---
+title: Education
+description: Reference architecture for an AI reading and learning tutor – speech scoring plus curriculum-grounded tutoring with progress tracking, powered by the NAISH Hub.
+full: true
+---
+
+A learner practises reading aloud or works through lessons on an app or by voice;
+a teacher watches progress from a dashboard. This template shows a tutor that
+scores speech, teaches from the curriculum, and tracks each learner.
+
+![Education reference architecture](/templates/education.svg)
+
+## How it works
+
+1. **Channels** – learners use an app or voice; teachers use a dashboard.
+2. **Gateway & access** – handles access and authentication.
+3. **AI tutor agent (+ skills)** – calls skills: speech scoring for reading
+   fluency, the model for tutoring dialogue, retrieval over the curriculum for
+   grounding, and a progress service to track mastery.
+4. **Speech scoring (ASR)** – reads recorded audio and writes fluency scores to
+   the progress service.
+5. **NAISH Hub** – serves the ASR and language models on GPU. Sovereign AI core.
+6. **Data & dependencies** – a vector store grounds tutoring, a learner-records
+   store tracks progress, and identity gates access.
+
+## Where the Hub adds value
+
+- **Local-language literacy** – Hub-served ASR and models assess and tutor in the
+  languages learners actually read.
+- **Grounded tutoring** – retrieval keeps the tutor on the official curriculum.
+- **Sovereignty** – learner data and models stay on national infrastructure; see
+  [Governance & Risk](/docs/capabilities/governance-risk).
+
+## Reusable building blocks
+
+| Layer | This template | Swap in for your context |
+| --- | --- | --- |
+| Channels | Learner app / voice + teacher dashboard | Any learner or educator client |
+| Agent + skills | Speech scoring, retrieval, progress | Subject-specific skills |
+| Models (Hub) | ASR + tutoring LLM | Curriculum-tuned models |
+| Services | Progress service | Whatever LMS the programme runs |
+| Data | Learner records + curriculum | Any governed education source |

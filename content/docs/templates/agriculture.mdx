@@ -1,0 +1,43 @@
+---
+title: Agriculture
+description: Reference architecture for an agricultural advisory assistant – multilingual, multi-channel guidance grounded in agronomy, with weather-aware alerts, powered by the NAISH Hub.
+full: true
+---
+
+A smallholder farmer wants advice over chat, voice, or IVR, in their own
+language; an extension agent supports many farmers from an app. This template
+shows an advisory assistant grounded in agronomy that also pushes timely alerts.
+
+![Agriculture reference architecture](/templates/agriculture.svg)
+
+## How it works
+
+1. **Channels** – farmers reach the advisor over chat, voice, or IVR; extension
+   agents use an app.
+2. **Gateway & consent** – access, authentication, and consent first.
+3. **AI advisory agent (+ skills)** – reasons about the question and calls
+   skills: the model for language, retrieval over agronomy knowledge, and the
+   farmer-profile service for personalised advice.
+4. **NAISH Hub** – serves the models on GPU. Sovereign AI core.
+5. **Data & dependencies** – a vector store grounds advice, a farmer database
+   personalises it, weather / GIS data informs alerts, and alerts fan out to
+   messaging (IVR / SMS) through a queue.
+
+## Where the Hub adds value
+
+- **Local-language reach** – Hub-served models advise in the farmer's language
+  across low-bandwidth channels.
+- **Grounded, timely** – retrieval ties advice to real agronomy; weather-aware
+  alerts reach farmers before they need to act.
+- **Sovereignty** – farmer data and models stay on national infrastructure; see
+  [Governance & Risk](/docs/capabilities/governance-risk).
+
+## Reusable building blocks
+
+| Layer | This template | Swap in for your context |
+| --- | --- | --- |
+| Channels | Chat / voice / IVR + agent app | Any farmer or field channel |
+| Agent + skills | Agronomy retrieval, profile, alerts | Crop / region-specific skills |
+| Models (Hub) | Local-language advisory LLM | Domain-tuned models |
+| Services | Profile, advisory / alerts | Whatever platforms the programme runs |
+| Data | Farmer database + agronomy | Any governed agricultural source |

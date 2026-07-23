@@ -1,0 +1,47 @@
+---
+title: Government
+description: Reference architecture for a government policy and decision-intelligence assistant – an AI agent that ingests documents, retrieves grounded answers, and builds dashboards, powered by the NAISH Hub.
+full: true
+---
+
+Government teams sit on large volumes of documents, reports, and operational
+data. This template shows an assistant that turns that into answers and
+dashboards: staff and reviewers ask questions in natural language and get
+grounded, cited responses.
+
+![Government reference architecture](/templates/government.svg)
+
+## How it works
+
+1. **Channels** – government staff and policy reviewers work through a web
+   client.
+2. **Gateway & access** – a single entry point handles access and
+   authentication.
+3. **Document ingestion** – uploaded documents are stored and embedded so they
+   become searchable.
+4. **AI agent (+ skills)** – reasons about a request and calls its skills: the
+   model for language, retrieval for grounding in real documents, and a
+   dashboard skill for visual answers.
+5. **NAISH Hub** – serves the models on GPU and pulls foundation models from a
+   model hub. Sovereign AI core.
+6. **Data & dependencies** – a vector store grounds retrieval, an analytics store
+   backs dashboards, and identity / SSO gates access.
+
+## Where the Hub adds value
+
+- **Document intelligence** – the Hub-served model reads, compares, and
+  summarises policy and reports at scale.
+- **Grounding** – retrieval keeps answers tied to the government's own documents,
+  with citations, not model guesswork.
+- **Sovereignty** – sensitive government data and models stay on national
+  infrastructure; see [Governance & Risk](/docs/capabilities/governance-risk).
+
+## Reusable building blocks
+
+| Layer | This template | Swap in for your context |
+| --- | --- | --- |
+| Channels | Staff web + reviewer | Any internal client |
+| Agent + skills | Ingestion, retrieval, dashboards | Sector-specific skills |
+| Models (Hub) | Document LLM + retrieval | Domain-tuned models |
+| Services | Ingestion, dashboards | Whatever platforms the team runs |
+| Data | Document + analytics stores | Any governed data source |
