@@ -1,0 +1,51 @@
+---
+title: Public Service Delivery
+description: Reference architecture for a multi-channel citizen-service assistant – an AI agent over records and workflow, with identity and payment dependencies, powered by the NAISH Hub.
+full: true
+---
+
+A citizen wants to check eligibility, apply for a service, or get an answer –
+over chat or voice. A frontline worker needs the same from an app. This template
+shows how that solution is assembled, and where the NAISH Hub powers it.
+
+![Public service delivery reference architecture](/templates/public-service-delivery.svg)
+
+## How it works
+
+1. **Channels** – citizens reach the service through chat or voice; a
+   frontline-worker app is a second client.
+2. **Gateway & consent** – a single entry point handles access, authentication,
+   and consent before anything reaches the AI layer.
+3. **AI agent (+ skills)** – rather than one model behind a form, an agent
+   reasons about the request and calls the right skills: the model for language,
+   retrieval for grounding, and services for records and actions.
+4. **NAISH Hub** – serves the models (LLM inference on GPU, pulling foundation
+   models from a model hub, loading datasets from object storage). This is the
+   sovereign AI core of the solution.
+5. **Services & data** – a records service reads and writes citizen data; a
+   workflow engine drives the service process and notifications.
+6. **Dependencies** – identity is verified through an identity provider, payments
+   through a payment rail, and messaging (SMS / IVR) closes the loop.
+
+Every named component is an example of a *kind* of system. Swap the records
+service, identity provider, or messaging channel for whatever your project
+already uses – the Hub-powered AI layer stays the same.
+
+## Where the Hub adds value
+
+- **Language & reasoning** – the Hub serves the model that understands the
+  request in the user's own language and drives the agent.
+- **Grounding** – retrieval over a vector store keeps answers tied to real
+  records and policy rather than model guesswork.
+- **Sovereignty** – data and models stay on national infrastructure; see
+  [Governance & Risk](/docs/capabilities/governance-risk).
+
+## Reusable building blocks
+
+| Layer | This template | Swap in for your sector |
+| --- | --- | --- |
+| Channels | Chat / voice + worker app | Any citizen or field channel |
+| Agent + skills | Records, workflow, identity, payment | Sector-specific skills |
+| Models (Hub) | Local-language LLM + retrieval | Domain-tuned models |
+| Services | Records + workflow | Whatever platforms the project runs |
+| Data | Citizen records | Sector dataset (farmers, patients, learners) |

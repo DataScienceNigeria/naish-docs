@@ -1,0 +1,43 @@
+---
+title: Health Records
+description: Reference architecture for AI-assisted health-record digitisation and lookup – OCR extraction into a records service, with natural-language retrieval, powered by the NAISH Hub.
+full: true
+---
+
+Paper and scanned records need to become structured, searchable data – and
+frontline workers need to look them up quickly. This template shows an assistant
+that digitises records and answers questions over them.
+
+![Health records reference architecture](/templates/health-records.svg)
+
+## How it works
+
+1. **Channels** – a records clerk digitises; a health worker looks records up
+   from an app.
+2. **Gateway & access** – handles access and authentication.
+3. **AI agent (+ skills)** – triggers OCR extraction, invokes the model, and
+   retrieves and reads records on request.
+4. **OCR / extraction** – reads scanned documents and writes structured output
+   into the records service.
+5. **NAISH Hub** – serves the OCR and language models on GPU. Sovereign AI core.
+6. **Data & dependencies** – a scanned-docs store, a structured record store, a
+   vector store for retrieval, and identity to gate access.
+
+## Where the Hub adds value
+
+- **Throughput** – Hub GPUs process large digitisation backlogs far faster than
+  manual entry.
+- **Lookup & grounding** – retrieval lets workers query records in natural
+  language, grounded in the real record store.
+- **Sovereignty** – records and models stay on national infrastructure; see
+  [Governance & Risk](/docs/capabilities/governance-risk).
+
+## Reusable building blocks
+
+| Layer | This template | Swap in for your context |
+| --- | --- | --- |
+| Channels | Clerk + worker app | Any records or field client |
+| Agent + skills | OCR, retrieval, records | Format-specific skills |
+| Models (Hub) | OCR + language models | Domain-tuned models |
+| Services | Records service | Whatever records platform the facility runs |
+| Data | Scanned + structured records | Any governed record source |

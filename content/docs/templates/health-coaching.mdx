@@ -1,0 +1,44 @@
+---
+title: Health Coaching
+description: Reference architecture for an AI health-coaching assistant – multi-channel guidance grounded in clinical guidelines, with reminders and a strict safety posture, powered by the NAISH Hub.
+full: true
+---
+
+A patient or a community health worker wants guidance over chat or voice, in
+their own language. This template shows a health-coaching assistant that answers
+from vetted guidelines, tracks the person over time, and sends reminders.
+
+![Health coaching reference architecture](/templates/health-coaching.svg)
+
+## How it works
+
+1. **Channels** – patients reach the coach over chat or voice; community health
+   workers use an app.
+2. **Gateway & consent** – access, authentication, and explicit consent come
+   first, before any clinical content.
+3. **AI health agent (+ skills)** – reasons about the request and calls skills:
+   the model for language, retrieval over clinical guidelines for grounding, and
+   the records service for continuity of care.
+4. **NAISH Hub** – serves the models on GPU. Sovereign AI core.
+5. **Data & dependencies** – a guideline vector store grounds answers, a patient
+   record store holds history, identity verifies the person, and reminders go out
+   through a queue to messaging.
+
+## Where the Hub adds value
+
+- **Language & reasoning** – Hub-served models coach in the patient's language.
+- **Grounded, safe answers** – retrieval ties responses to approved clinical
+  guidelines; this is a **high-stakes domain**, so safety evaluation gates
+  deployment. See [Responsible AI](/docs/capabilities/responsible-ai).
+- **Sovereignty** – patient data and models stay on national infrastructure; see
+  [Governance & Risk](/docs/capabilities/governance-risk).
+
+## Reusable building blocks
+
+| Layer | This template | Swap in for your context |
+| --- | --- | --- |
+| Channels | Chat / voice + worker app | Any patient or worker channel |
+| Agent + skills | Guideline retrieval, records, reminders | Condition-specific skills |
+| Models (Hub) | Local-language health LLM | Clinically fine-tuned models |
+| Services | Records, notifications | Whatever platforms the programme runs |
+| Data | Patient records + guidelines | Any governed clinical source |

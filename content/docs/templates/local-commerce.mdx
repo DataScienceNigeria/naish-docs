@@ -1,0 +1,49 @@
+---
+title: Local Commerce
+description: Reference architecture for a product that helps local traders list and sell their produce – photo-to-listing, price advice, and orders with payments and alerts, powered by the NAISH Hub.
+full: true
+---
+
+A local trader wants to sell their produce: snap a photo, get it listed, price it
+sensibly, and reach buyers – over an app or by voice, in their own language. This
+template shows a selling assistant that does exactly that.
+
+![Local commerce reference architecture](/templates/local-commerce.svg)
+
+## How it works
+
+1. **Channels** – a trader lists and manages produce over an app or voice; buyers
+   browse and order from a marketplace client.
+2. **Gateway & access** – handles access and authentication.
+3. **AI selling assistant (+ skills)** – reasons about what the trader wants and
+   calls its skills: the model for language, produce recognition to turn a photo
+   into a listing, catalogue management, a price advisor, and order handling.
+4. **Produce recognition** – reads the trader's photo and writes a structured
+   product into the catalogue, so listing is as easy as taking a picture.
+5. **NAISH Hub** – serves the vision and language models on GPU. Sovereign AI
+   core.
+6. **Data & dependencies** – a catalogue store holds listings, an orders store
+   holds transactions, a market vector store grounds price advice, identity gates
+   access, payments settle through a payment rail, and buyers / traders are kept
+   updated through a queue to messaging.
+
+## Where the Hub adds value
+
+- **Photo-to-listing** – Hub-served vision models turn a produce photo into a
+  ready listing, removing the biggest barrier for low-literacy traders.
+- **Fair pricing** – retrieval over market data grounds price suggestions in real
+  local conditions, not guesswork.
+- **Local-language selling** – the assistant works in the trader's language over
+  low-bandwidth channels.
+- **Sovereignty** – trader and transaction data and models stay on national
+  infrastructure; see [Governance & Risk](/docs/capabilities/governance-risk).
+
+## Reusable building blocks
+
+| Layer | This template | Swap in for your context |
+| --- | --- | --- |
+| Channels | Trader app / voice + buyer marketplace | Any seller or buyer channel |
+| Agent + skills | Recognition, listing, pricing, orders | Product-specific skills |
+| Models (Hub) | Vision + local-language LLM | Domain-tuned models |
+| Services | Catalogue, orders, notifications | Whatever commerce platform is used |
+| Data | Catalogue + orders + market data | Any governed commerce source |

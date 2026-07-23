@@ -1,0 +1,69 @@
+---
+title: Templates
+description: Reference solution-architecture templates showing how the NAISH Hub powers AI use cases across public service delivery, government, health, agriculture, and education.
+---
+
+Templates are **reference solution architectures**. Each shows how a real class
+of solution is put together, and – most importantly – **where the NAISH Hub fits
+in and what AI it powers**. They are starting points a team can adapt: keep the
+shape, swap in your own models, data, channels, and platforms.
+
+The examples below are illustrative, not prescriptive. A template names a *kind*
+of component – a records system, a messaging channel, an identity check – not a
+specific product. Use whichever tools and platforms suit your project; the Hub is
+the constant.
+
+## What every template shows
+
+- **The channels** users arrive through (chat, voice, apps).
+- **The AI layer the Hub powers** – models served on Hub GPUs, an agent that
+  reasons over a goal and calls tools (its *skills*), and retrieval that keeps
+  answers grounded.
+- **The supporting services and data** the solution reads and writes.
+- **The external dependencies** it relies on (identity, payments, messaging,
+  model sources).
+
+The Hub's role is consistent across all of them: it is the **sovereign AI core**
+– serving and fine-tuning models on national infrastructure – that these
+solutions plug into. See
+[GPU / Compute Support](/docs/capabilities/gpu-compute-support).
+
+## The templates
+
+<Cards>
+  <Card
+    title="Public Service Delivery"
+    href="/docs/templates/public-service-delivery"
+    description="A multi-channel citizen-service assistant: an AI agent over records and workflow, with identity and payment dependencies."
+  />
+  <Card
+    title="Government"
+    href="/docs/templates/government"
+    description="A policy and decision-intelligence assistant: document ingestion, grounded retrieval, and dashboards."
+  />
+  <Card
+    title="Health Coaching"
+    href="/docs/templates/health-coaching"
+    description="A multi-channel health coach grounded in clinical guidelines, with reminders and a strict safety posture."
+  />
+  <Card
+    title="Health Records"
+    href="/docs/templates/health-records"
+    description="AI-assisted record digitisation and natural-language lookup over structured records."
+  />
+  <Card
+    title="Agriculture"
+    href="/docs/templates/agriculture"
+    description="A multilingual advisory assistant grounded in agronomy, with weather-aware alerts over IVR / SMS."
+  />
+  <Card
+    title="Education"
+    href="/docs/templates/education"
+    description="A reading and learning tutor: speech scoring plus curriculum-grounded tutoring with progress tracking."
+  />
+  <Card
+    title="Local Commerce"
+    href="/docs/templates/local-commerce"
+    description="A selling assistant for local traders: photo-to-listing, price advice, and orders with payments and alerts."
+  />
+</Cards>
