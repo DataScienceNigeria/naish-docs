@@ -1,7 +1,6 @@
-import { redirect } from 'next/navigation';
+import { HomeHero } from '@/components/home-hero';
 
-// The documentation index (content/docs/index.mdx) is the real landing page,
-// rendered inside the docs layout with the sidebar. Send root traffic there.
+// Landing page at "/" – rendered in the home layout (top nav, no side menu).
 export default function HomePage() {
-  redirect('/docs');
+  return <HomeHero />;
 }
