@@ -1,0 +1,304 @@
+---
+title: Sandbox Integration Toolkit & API Playbooks
+description: Documentation and tools for integrating with the NIMC Identity API and other digital public infrastructure platforms - interface and security analysis, toolkit components, sample workflows, API playbooks, and sandbox validation before production access.
+---
+
+Most NAISH use cases become real at the moment they touch **Digital Public
+Infrastructure**: an agricultural advisory service that must know which farmer it
+is speaking to, a health-record solution that must resolve a patient identity, an
+education platform that must verify a learner's credential. That moment is also
+where solutions most often fail - on authentication they did not plan for, on
+data-handling obligations discovered late, or on an integration that worked
+against a mock and broke against the real interface.
+
+This page is the **sandbox integration toolkit and API playbooks**: what the
+interfaces require, what the toolkit provides, and the repeatable path from first
+sandbox call to production-ready integration.
+
+<Callout type="warn">
+  Sandbox credentials and sandbox data are for **testing only**. They are not
+  production identity verification, and a sandbox result is never evidence that a
+  real person exists, consented, or is who they claim to be. Production DPI
+  access is a separate authorisation from the platform owner.
+</Callout>
+
+## Why a toolkit rather than per-team integration
+
+The [AI-DPI Sandbox](/docs/projects-archive/archive/ai-dpi-sandbox) established
+the finding this toolkit responds to: startups and solution teams face **high
+integration costs, fragmented vendor interfaces, regulatory complexity, and
+limited in-house capacity** to adopt DPI safely. Left to themselves, ten teams
+solve the same authentication, error-handling, and consent-logging problems ten
+times - each with a different security posture, and each one a separate audit
+surface for the Hub.
+
+A shared toolkit makes the safe path the easy path: standard integration
+components, tested workflows, and playbooks that encode the compliance
+requirements rather than leaving them to be rediscovered.
+
+## Interface analysis: what DPI integration requires
+
+Before building, teams must understand four properties of any DPI interface they
+intend to use. The toolkit documents these per platform; the analysis below sets
+out what must be established in each case.
+
+### 1. Interface and protocol
+
+- **Transport and style** - REST over HTTPS is the common case; some platforms
+  expose SOAP or message-queue interfaces. Confirm protocol, base URLs for
+  sandbox and production, and whether they differ in more than hostname.
+- **Request and response schemas** - field names, types, mandatory versus
+  optional parameters, and the exact shape of both success and error responses.
+- **Versioning** - which API version the integration targets, how versions are
+  signalled, and what the deprecation notice period is.
+- **Rate limits and quotas** - per-key and per-window limits, and what the
+  platform returns when a limit is exceeded. A national service must degrade
+  predictably when throttled.
+- **Availability expectations** - published uptime, maintenance windows, and
+  whether the platform offers a status endpoint the solution can poll.
+
+### 2. Authentication and authorisation
+
+- **Credential type** - API key, client ID and secret, OAuth 2.0 client
+  credentials, or mutual TLS. Record how credentials are issued, rotated, and
+  revoked.
+- **Token lifecycle** - token endpoint, lifetime, refresh behaviour, and what the
+  solution does when a token expires mid-request. Tokens are cached, never
+  re-requested per call, and never logged.
+- **Scope and least privilege** - request only the scopes the use case needs. An
+  identity verification use case does not need a demographic data scope.
+- **Credential storage** - secrets live in the platform secret store, injected at
+  runtime. They are never committed to source control, baked into images, or
+  passed in URLs.
+- **Attribution** - every call is attributable to a solution, an environment, and
+  where relevant an end-user consent record.
+
+### 3. Data handling
+
+- **Minimisation** - request and retain the minimum fields the use case
+  requires. For identity verification, a match/no-match result is usually
+  sufficient; the full demographic record is usually not.
+- **Consent capture** - for any DPI lookup involving a person's data, the
+  solution must capture and store evidence of that person's consent for that
+  specific lookup, with a timestamp and purpose. This is an
+  **Nigeria Data Protection Act (NDPA)** obligation, not a design preference.
+- **Retention and deletion** - define how long DPI-derived data is held and where
+  it is stored. Identity data should not accumulate in application logs, caches,
+  or model training sets.
+- **No training on DPI responses** - DPI responses are operational data. They do
+  not enter a training corpus without an explicit, separately authorised legal
+  basis.
+- **Residency** - DPI-derived personal data stays on Hub infrastructure. Routing
+  it through a third-party hosted service requires review before, not after,
+  integration.
+
+### 4. Security requirements
+
+- **Transport security** - TLS enforced; certificate validation never disabled,
+  including in sandbox work.
+- **Bounded surface** - where an AI agent consumes DPI data, it does so through
+  purpose-built tools over normalised views, following the
+  [DiCert MCP](/docs/projects-archive/archive/dicert-mcp) pattern. Models do not
+  issue arbitrary queries against DPI systems.
+- **Input validation** - validate and normalise identifiers before they leave the
+  solution. Malformed input wastes quota and leaks intent through error messages.
+- **Redaction in logs and telemetry** - identifiers, tokens, and demographic
+  fields are redacted or hashed before logging. A debug log containing NINs is a
+  data breach.
+- **Failure behaviour** - a solution fails **closed** on identity verification:
+  if the DPI is unavailable, the answer is "cannot verify", never "assume
+  verified".
+- **Alignment with the Hub's security principles** - see
+  [Securing AI-Powered Solutions](/docs/projects-archive/archive/securing-ai-systems)
+  and [AI Governance](/docs/capabilities/ai-governance).
+
+## Toolkit components
+
+The toolkit packages the above into reusable parts so teams integrate by
+configuration rather than by reimplementation.
+
+| Component | What it provides |
+| --- | --- |
+| **Client libraries** | Thin, typed clients per DPI platform handling base URL selection, auth, retries, and error mapping |
+| **Auth module** | Token acquisition, caching, refresh, and revocation, reading credentials from the platform secret store |
+| **Consent recorder** | A standard record structure and store for capturing per-lookup consent with purpose and timestamp |
+| **Redacting logger** | Structured logging with identifier and token redaction applied by default |
+| **Error taxonomy** | Mapping of platform error codes to a common set (retryable, client error, auth failure, quota, upstream outage) |
+| **Mock and replay server** | Local mock of DPI interfaces for development and CI, plus recorded-response replay for regression tests |
+| **Health and quota probes** | Readiness checks and quota reporting so a solution knows its upstream state before it degrades |
+| **Sample workflows** | End-to-end reference implementations of the common integration patterns |
+| **Compliance checklist** | Pre-production checklist mapping each requirement to the evidence the governance gate expects |
+
+### Environment configuration
+
+Sandbox and production differ by configuration, never by code path. Teams supply
+the environment through configuration and secrets; the client library resolves
+base URLs, credentials, and rate-limit behaviour accordingly. A solution that
+needs an `if (production)` branch in its integration logic has a design problem
+and will be sent back at the governance gate.
+
+## API playbooks
+
+A playbook is a repeatable, ordered procedure for one integration concern.
+Playbooks exist so that every solution on the Hub handles these concerns the same
+way - which is what makes them auditable.
+
+### Playbook 1 - Onboarding
+
+1. **Confirm the use case is authorised.** Identity and DPI integration require a
+   use case that has passed
+   [feasibility assessment](/docs/capabilities/feasibility-assessment) and
+   declares the DPI dependency.
+2. **Request sandbox credentials** for the target platform, naming the solution,
+   the environment, and the scopes required.
+3. **Register the integration** in workload metadata: platform, API version,
+   scopes, data fields consumed, retention period.
+4. **Store credentials in the secret store** and confirm no credential appears in
+   source control or container images.
+5. **Run the connectivity smoke test** shipped with the client library - it
+   verifies base URL, TLS, auth, and a single known-good sandbox call.
+6. **Complete the data-protection assessment** for the personal data the
+   integration will touch, before writing feature code.
+
+### Playbook 2 - Authentication
+
+1. Acquire a token through the auth module; never hand-roll the token exchange.
+2. Cache the token for its stated lifetime, with a safety margin; refresh
+   proactively rather than on failure.
+3. On `401`, refresh once and retry once. On a second `401`, fail closed and
+   raise an auth alert - do not loop.
+4. Never log tokens, secrets, or full authorisation headers, at any log level.
+5. Rotate credentials on the platform's schedule and on any suspected exposure;
+   confirm the solution picks up rotated secrets without a code change.
+
+### Playbook 3 - Making a request
+
+1. Validate and normalise the identifier before the call.
+2. Confirm a valid consent record exists for this lookup and purpose; if not,
+   stop.
+3. Request the minimum scope and fields.
+4. Apply a request timeout. A national service does not hang on an upstream.
+5. Attach a correlation ID so the call can be traced end to end.
+6. Consume only the fields the use case needs; discard the rest rather than
+   persisting the full response.
+
+### Playbook 4 - Testing
+
+1. **Develop against the mock server**, not against live sandbox endpoints -
+   faster, and it does not consume quota.
+2. **Write contract tests** against recorded sandbox responses so schema drift
+   surfaces in CI rather than in production.
+3. **Test the failure paths explicitly**: timeout, `429`, `5xx`, malformed
+   response, expired token, and revoked credential. Failure-path coverage is a
+   gate requirement, not optional hardening.
+4. **Test with representative Nigerian data shapes** - name formats, diacritics,
+   multilingual input - not only ASCII placeholder values.
+5. **Run an end-to-end sandbox validation** of the complete workflow before
+   requesting production access.
+
+### Playbook 5 - Error handling
+
+1. Map every platform error to the common taxonomy: retryable, client error,
+   auth failure, quota exceeded, upstream outage.
+2. Retry only what is retryable, with exponential backoff and jitter, and a
+   bounded attempt count. Never retry a client error.
+3. Respect `Retry-After` where the platform provides it.
+4. Apply a circuit breaker: sustained upstream failure stops calls rather than
+   amplifying an outage.
+5. Surface a clear, non-technical message to the end user. "We could not verify
+   your identity right now" - never a raw upstream error, and never a fabricated
+   success.
+6. Fail closed on anything identity- or eligibility-related.
+
+### Playbook 6 - Logging and observability
+
+1. Log structured events, not free text, through the redacting logger.
+2. Record per call: timestamp, correlation ID, solution, environment, platform,
+   operation, outcome, latency. Never the payload.
+3. Redact or hash identifiers; if an identifier must be traceable, store a
+   one-way hash with a per-environment salt.
+4. Monitor error rate, latency percentiles, quota consumption, and auth failure
+   rate; alert on auth failures and quota exhaustion.
+5. Retain integration logs for the period the governance framework requires, and
+   delete them on schedule - log retention is a data-retention obligation.
+
+### Playbook 7 - Compliance and pre-production review
+
+1. Evidence of consent capture for every personal-data lookup.
+2. Completed NDPA data-protection assessment.
+3. Documented data minimisation - which fields are requested and why.
+4. Documented retention and deletion for DPI-derived data, including logs.
+5. Proof that credentials are stored in the secret store and rotatable.
+6. Failure-path test results, including fail-closed behaviour.
+7. Confirmation that DPI responses do not enter training data.
+8. Sign-off recorded against the
+   [Governance &amp; Risk](/docs/capabilities/governance-risk) framework.
+
+## Sandbox validation before wider use
+
+The sandbox exists so that integration patterns are proven **before** they reach
+production DPI or wider solution-team adoption. Validation has three stages.
+
+### Stage 1 - Pattern validation
+
+A new integration pattern is built and exercised in the sandbox by the DSN Data
+&amp; Security Team: full workflow, all failure paths, security review against
+the requirements above. Output is a reference implementation plus its test suite.
+
+### Stage 2 - Team adoption in sandbox
+
+Solution teams adopt the pattern in their own sandbox environment. They run the
+same contract and failure-path tests, adapted to their use case. Issues found
+here feed back into the toolkit rather than being patched locally - a workaround
+in one team's codebase is a defect the next team will rediscover.
+
+### Stage 3 - Production access request
+
+Only after sandbox validation does a team request production DPI access, with:
+
+- The completed compliance checklist from Playbook 7.
+- Sandbox test results including failure paths.
+- The registered integration record from workload metadata.
+- Named credential owners and a rotation plan.
+
+Production access is granted by the DPI platform owner, not by the Hub. The Hub's
+role is to ensure the solution is ready to be trusted with it.
+
+## Packaging for repeatable adoption
+
+The toolkit is maintained as a versioned, documented package rather than a set of
+examples:
+
+- **Versioned releases** - client libraries and playbooks are versioned; teams
+  pin a version and upgrade deliberately. Breaking changes carry migration notes.
+- **Quickstart per platform** - a runnable path from credentials to first
+  successful sandbox call, so a new team is integrated in hours, not weeks.
+- **Reference implementations** - complete sample workflows per pattern
+  (identity verification, credential lookup, data retrieval over MCP, messaging
+  channel delivery) that teams copy and adapt.
+- **Shipped test suites** - contract and failure-path tests come with the
+  toolkit, so meeting the gate requirement is the default rather than extra work.
+- **Feedback loop** - defects, gaps, and new platform quirks found by solution
+  teams are returned to the DSN Data &amp; Security Team and folded into the next
+  release. The toolkit is expected to improve with each integration, not
+  fragment across teams.
+- **Published to the TWG** - toolkit releases and playbook updates are published
+  to the Technical Working Group alongside the
+  [Integration Guide and Resource Catalogue](/docs/integration/resource-catalogue).
+
+## Summary checklist
+
+Before a DPI integration is considered ready:
+
+1. Interface, auth, data-handling, and security requirements documented for the
+   target platform.
+2. Integration registered in workload metadata with scopes, fields, and
+   retention.
+3. Credentials in the secret store, rotatable, never in code or logs.
+4. Consent capture implemented and evidenced for every personal-data lookup.
+5. Data minimisation applied - minimum scope, minimum fields, minimum retention.
+6. Failure paths tested, with fail-closed behaviour on identity and eligibility.
+7. Logging redacted, structured, monitored, and retention-bounded.
+8. Full workflow validated end to end in the sandbox.
+9. Compliance checklist completed and signed off at the governance gate.
+10. Production access requested from the platform owner with the evidence above.

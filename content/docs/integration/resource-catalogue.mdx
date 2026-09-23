@@ -1,0 +1,337 @@
+---
+title: Integration Guide & Resource Catalogue
+description: Catalogue of existing ecosystem assets, datasets, tools, frameworks, and governance resources relevant to Hub use cases - with technical prerequisites, access pathways, constraints, and practical integration routes into solution design, build, and deployment.
+---
+
+NAISH does not start from zero. A large share of what a national use case needs: speech corpora, governance frameworks, DPI connectors, credentialing middleware,
+low-code delivery platforms etc., already exists inside the Nigerian AI ecosystem,
+most of it built or funded through the same programmes that produced the Hub.
+The failure mode is not absence of assets; it is teams rebuilding an asset they
+did not know existed, or adopting one without checking whether its licence,
+access terms, or maturity fit the job.
+
+This page is the **integration guide and resource catalogue**: what exists, what
+it takes to use it, where it does and does not fit, and how it enters a Hub
+solution.
+
+## How to use this catalogue
+
+1. **Search before you build.** At use-case scoping, check this catalogue for an
+   asset that already covers part of the problem. Reuse is the default; a new
+   build needs a reason.
+2. **Read the fit-for-purpose notes, not only the description.** Several assets
+   are production-grade in one dimension and prototype-grade in another.
+3. **Confirm prerequisites and access before committing to a design.** Access
+   negotiation - API keys, data-use agreements, partner sign-off - is often the
+   long pole, not the engineering.
+4. **Record the asset in workload metadata.** Every asset a solution depends on
+   is a dependency the Hub must track for governance, licensing, and risk.
+
+
+## Catalogue structure
+
+Every catalogued asset is described against the same six fields, so that teams
+can compare like with like:
+
+| Field | What it records |
+| --- | --- |
+| **Asset & owner** | What it is, who owns and maintains it |
+| **Type** | Dataset, model, platform, framework, API, or toolkit |
+| **Technical prerequisites** | What a team must have or stand up to use it |
+| **Access pathway** | How a team obtains access - open, API key, agreement, partner request |
+| **Constraints** | Licence, consent, coverage, maturity, and operational limits |
+| **Fit-for-purpose** | Where it works well, where it does not |
+
+## Ecosystem asset catalogue
+
+### Datasets and corpora
+
+#### AfricanVoices
+
+- **Owner** - Data Science Nigeria (DSN), Gates-funded.
+  [Project page](/docs/projects-archive/archive/african-voices)
+- **Type** - Speech corpus (~1,900 hours) across Hausa, Igbo, Nigerian Pidgin,
+  and Yoruba, with demographic metadata.
+- **Technical prerequisites** - object storage for audio at scale, an ASR
+  training or fine-tuning pipeline (Whisper-family or equivalent), and GPU
+  allocation on the node. Audio should be normalised to 16 kHz before training,
+  per the [data readiness standards](/docs/capabilities/data-readiness).
+- **Access pathway** - request through DSN as data custodian; access is governed
+  by the corpus data-use terms and recorded in workload metadata.
+- **Constraints** - consent and licensing terms attach to the recordings and
+  must be reviewed against the intended use (training vs redistribution).
+  Dialect coverage is uneven across the four languages; treat the corpus as
+  strong but not nationally uniform.
+- **Fit-for-purpose** - strong for ASR and voice-interface use cases in the four
+  covered languages (Oral Reading Fluency, voice agricultural advisory, health
+  coaching over voice). Not a substitute for domain-specific clinical or
+  agricultural terminology data, which must be supplemented.
+
+#### Masakhane datasets and benchmarks
+
+- **Owner** - Masakhane, grassroots pan-African NLP collective.
+  [Project page](/docs/projects-archive/archive/masakhane)
+- **Type** - Open datasets, models, and benchmarks for African languages,
+  including Nigerian and health-relevant resources.
+- **Technical prerequisites** - standard NLP tooling; most resources are
+  distributed through open repositories and Hugging Face.
+- **Access pathway** - open access, per-resource licence.
+- **Constraints** - licences vary per dataset; verify each individually rather
+  than assuming the collective's general openness applies to every artefact.
+  Resource maturity ranges from research prototype to well-maintained benchmark.
+- **Fit-for-purpose** - best used as **evaluation and benchmarking** resources
+  for Nigerian-language models, and as a supplementary text corpus. Benchmarks
+  here support the in-language evaluation required by the
+  [Responsible AI](/docs/capabilities/responsible-ai) gate.
+
+#### N-ATLaS-LLM 8B
+
+- **Owner** - Nigerian-language open-source model, referenced across Hub use
+  cases. See [Voice &amp; Local-Language Datasets](/docs/capabilities/voice-language-datasets).
+- **Type** - Open-weight base model tuned for Nigerian languages.
+- **Technical prerequisites** - GPU allocation sized for 8B fine-tuning or
+  inference; standard serving stack on the node.
+- **Access pathway** - open weights.
+- **Constraints** - base-model quality varies by language and domain; requires
+  domain fine-tuning for clinical, agricultural, or legal content.
+- **Fit-for-purpose** - the default starting point for Nigerian-language
+  generation tasks. Preferred over fine-tuning an English-only model with
+  translated examples.
+
+### Governance frameworks
+
+#### GenAIGov - STANDARD framework
+
+- **Owner** - DSN, Gates-funded; live at
+  [genaigov.ai](https://www.genaigov.ai/en).
+  [Project page](/docs/projects-archive/archive/genaigov)
+- **Type** - Self-assessment platform scoring AI governance maturity across
+  eight dimensions (Systems, Transparency, Algorithms, Norms, Deployment,
+  Accountability, Risk, Data).
+- **Technical prerequisites** - none; it is a web application.
+- **Access pathway** - open, self-service.
+- **Constraints** - it is a **readiness assessment, not a certification**. A
+  high score does not substitute for the Hub's own
+  [governance and risk](/docs/capabilities/governance-risk) review or for NDPA
+  compliance.
+- **Fit-for-purpose** - use it **before** requesting Hub access, as a structured
+  self-check. Its Data, Transparency, and Accountability dimensions map closely
+  onto the Hub's data-readiness and responsible-AI gates, so the exported report
+  is useful evidence in a use-case submission.
+
+#### Securing AI-Powered Solutions principles
+
+- **Owner** - DSN.
+  [Reference](/docs/projects-archive/archive/securing-ai-systems)
+- **Type** - Security principles for AI systems - bounded tool surfaces, gated
+  access, normalised read views over raw data.
+- **Technical prerequisites** - none; applied at design time.
+- **Access pathway** - open documentation.
+- **Constraints** - principles, not a compliance checklist; they must be
+  translated into concrete controls per solution.
+- **Fit-for-purpose** - mandatory reading for any solution that exposes national
+  data to an AI client. Pairs directly with the sandbox integration toolkit and
+  [API playbooks](/docs/integration/sandbox-toolkit).
+
+### Platforms and middleware
+
+#### DiCert MCP - AI-DPI middleware pattern
+
+- **Owner** - DSN. [Project page](/docs/projects-archive/archive/dicert-mcp)
+- **Type** - Model Context Protocol (MCP) server exposing DPI data as governed,
+  callable tools for AI clients.
+- **Technical prerequisites** - an MCP-capable AI client; HTTP/SSE connectivity;
+  API-key management.
+- **Access pathway** - reference implementation runs over DiCert, Nigeria's
+  school credentialing platform; access via DSN.
+- **Constraints** - the reference deployment is scoped to credentialing data.
+  Reusing the pattern over a different DPI requires building the tool surface
+  for that platform.
+- **Fit-for-purpose** - the **reference architecture** for any Hub solution where
+  an AI agent must act on DPI data. Adopt the pattern - bounded read tools,
+  normalised views, API-key gating - rather than letting a model query a DPI
+  database directly.
+
+#### AI-DPI Sandbox stack
+
+- **Owner** - CcHub, DSN, and DIAL, Gates-funded.
+  [Project page](/docs/projects-archive/archive/ai-dpi-sandbox)
+- **Type** - Managed, API-based sandbox unifying AI services, a Nigerian DPI
+  stack (NIN, BVN, Liveness), open-source tools (DHIS2, PostgreSQL), APIs
+  (Maps), apps (QR, notifications), and network channels (SMS, USSD, IVR,
+  voice).
+- **Technical prerequisites** - sandbox credentials; an application capable of
+  calling REST APIs.
+- **Access pathway** - via the sandbox programme and its successor arrangements
+  under NAISH.
+- **Constraints** - sandbox credentials and data are for **testing**, not
+  production identity verification; production DPI access requires separate
+  authorisation from the relevant platform owner.
+- **Fit-for-purpose** - the standard environment for validating DPI integration
+  patterns before requesting production access. See the
+  [Sandbox Integration Toolkit and API Playbooks](/docs/integration/sandbox-toolkit)
+  for the concrete workflows.
+
+#### CommCare and Open Chat Studio (Dimagi)
+
+- **Owner** - Dimagi. [Project page](/docs/projects-archive/archive/dimagi)
+- **Type** - Open-source, offline-first platforms for frontline health and
+  development data collection and chat-based services.
+- **Technical prerequisites** - hosted or self-hosted deployment; standard web
+  and mobile delivery.
+- **Access pathway** - open source, with commercial hosting available.
+- **Constraints** - platform-shaped: adopting it means adopting its data model
+  and deployment conventions.
+- **Fit-for-purpose** - strong for frontline data collection and offline-first
+  health workflows, where rebuilding equivalent field-tested tooling would be
+  wasteful.
+
+#### Gooey.AI
+
+- **Owner** - Gooey.AI. [Project page](/docs/projects-archive/archive/gooey)
+- **Type** - Low-code platform for multilingual AI copilots over WhatsApp and
+  voice, with proven frontline health and agriculture deployments.
+- **Technical prerequisites** - channel credentials (WhatsApp Business API or
+  equivalent); content and knowledge base preparation.
+- **Access pathway** - commercial platform with open components.
+- **Constraints** - third-party hosting implies a data-residency and
+  governance review before any Nigerian personal data flows through it.
+- **Fit-for-purpose** - fast route to a multilingual conversational pilot. For
+  production national services, assess against the Hub's data-residency
+  requirements first.
+
+#### GovLLMiner / AIKano
+
+- **Owner** - DSN. [Project page](/docs/projects-archive/archive/govllminer)
+- **Type** - Offline-first, governance-tuned LLM piloted for Kano State,
+  extracting evidence from unstructured government data on local GPU.
+- **Technical prerequisites** - local GPU; document ingestion pipeline.
+- **Access pathway** - via DSN.
+- **Constraints** - piloted at state scale; national-scale behaviour unproven.
+- **Fit-for-purpose** - the closest existing precedent for government-document
+  question answering on sovereign infrastructure.
+
+#### EdoDiDA chatbot on DHIS2
+
+- **Owner** - DSN, Gates-funded.
+  [Project page](/docs/projects-archive/archive/edodida)
+- **Type** - Natural-language chatbot over DHIS2 producing plain-language
+  insight and recommendations from government health data.
+- **Technical prerequisites** - DHIS2 instance and API access.
+- **Access pathway** - via DSN and the relevant state health authority.
+- **Constraints** - tied to the DHIS2 data model and to state-level data-sharing
+  agreements.
+- **Fit-for-purpose** - the reference pattern for conversational analytics over
+  an existing national health information system.
+
+## Technical prerequisites: the common baseline
+
+Regardless of which asset a team adopts, the Hub expects the same baseline
+before integration work begins:
+
+- **A declared use case** that has passed
+  [feasibility assessment](/docs/capabilities/feasibility-assessment).
+- **Licensing and consent review completed** for every dataset the asset carries
+  or produces, per the data licensing standards in the
+  [Dataset Readiness and Training guidelines](/docs/integration/dataset-readiness).
+- **An identity and access plan** - which team members and services hold which
+  credentials, and how those are issued and revoked.
+- **A data-residency decision** - whether the asset processes Nigerian personal
+  data outside the Hub, and whether that is permitted.
+- **A dependency record** in workload metadata, so that a change or outage in an
+  upstream asset is traceable to the solutions that depend on it.
+
+## Integration pathways
+
+An asset enters a Hub solution through one of four pathways. Choosing the right
+one early prevents rework.
+
+### 1. Direct data integration
+
+The asset is a dataset or corpus that is ingested, pre-processed, and staged for
+training or evaluation.
+
+- Run the full data-readiness workflow: licensing review, cleaning,
+  normalisation, bias audit, stratified splits.
+- Register splits and pre-processing metadata in MLflow so evaluations are
+  reproducible.
+- Store derived datasets on Hub object storage with the retention terms the
+  source licence requires.
+
+### 2. Model reuse and fine-tuning
+
+The asset is a model or set of weights adapted to the use case.
+
+- Confirm the model licence permits fine-tuning and the intended deployment
+  (research, public service, commercial).
+- Record the base model, checkpoint, and training data lineage in MLflow.
+- Evaluate in-language and disaggregated by demographic group before the
+  [Responsible AI](/docs/capabilities/responsible-ai) gate.
+
+### 3. API and service integration
+
+The asset is a running platform or API the solution calls at runtime - a DPI
+service, an MCP middleware layer, a messaging channel.
+
+- Validate the integration in the sandbox before requesting production access.
+- Apply the bounded-tool-surface pattern: purpose-built read tools, no open
+  query access, API-key or token gating.
+- Define timeout, retry, and failure behaviour - a national service cannot fail
+  open when an upstream DPI is unavailable.
+
+### 4. Pattern and framework adoption
+
+The asset is a design pattern, governance framework, or playbook rather than
+running code.
+
+- Document explicitly which parts were adopted and which were adapted.
+- Where a framework produces a score or report (GenAIGov), attach the output to
+  the use-case submission as evidence.
+
+## Discoverability and reuse
+
+A catalogue nobody can search is a document, not an asset register. The Hub
+maintains discoverability through:
+
+- **Structured entries** - every asset carries the same six fields, so entries
+  are comparable and filterable by type, language coverage, domain, and access
+  model.
+- **Use-case tagging** - assets are tagged against the Hub's identified use
+  cases (agricultural advisory, digital health coaching, health-record
+  digitisation, oral reading fluency, government document intelligence) so a
+  team scoping a use case sees relevant assets immediately.
+- **Maturity labelling** - each asset is marked production, pilot, or research
+  prototype, so teams can judge the risk of depending on it.
+- **Dependency visibility** - because assets are recorded in workload metadata,
+  the Hub can answer the reverse question: which solutions depend on this asset
+  if it changes, degrades, or loses its licence.
+- **Contribution route** - solution teams submit newly identified or newly built
+  assets to the Data Governance &amp; Integration Lead for cataloguing. Assets
+  built on the Hub are expected to be catalogued, not kept private by default.
+
+## Publication and governance of the catalogue
+
+- The catalogue is **published to the Technical Working Group and solution
+  teams** as part of the Hub's operating documentation.
+- Entries are **reviewed when an asset's licence, access terms, or maturity
+  changes**, and at minimum on the Hub's regular documentation review cycle.
+- **Governance resources in the catalogue are not optional reading.** Where an
+  entry is a framework or security principle set, solutions in the relevant
+  domain are expected to demonstrate alignment at their governance gate.
+- Disputes about whether an asset is fit for a given use case are resolved by
+  the TWG, not by the adopting team alone.
+
+## Summary checklist
+
+Before integrating any ecosystem asset:
+
+1. Confirm the asset is catalogued; if not, submit it for cataloguing.
+2. Read its constraints and fit-for-purpose notes, not just its description.
+3. Verify licence and consent terms cover the intended use.
+4. Confirm the access pathway and begin access negotiation early.
+5. Choose the integration pathway (data, model, API, or pattern) explicitly.
+6. Validate in the sandbox before touching production DPI or production data.
+7. Record the asset and its version in workload metadata as a tracked
+   dependency.
+8. Attach any governance outputs (GenAIGov report, bias audit, data card) to the
+   use-case submission.

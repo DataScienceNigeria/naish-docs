@@ -1,0 +1,69 @@
+---
+title: Integration of Existing Assets and Governance
+description: Operating guidelines for reusing what the Nigerian AI ecosystem already has - the asset catalogue, dataset readiness and training standards, and the sandbox toolkit and API playbooks for integrating with NIMC Identity and other DPI platforms.
+---
+
+NAISH does not start from zero. National use cases arrive with **existing
+datasets, prior corpora, third-party models, governance frameworks, and DPI
+platforms** that already work - and with inherited licences, consent terms, and
+access constraints that must be assessed before any of it touches the compute
+pipeline.
+
+This section is the Hub's operating guidance for that reality: what already
+exists and how to adopt it, how to get a dataset from raw asset to
+pipeline-ready, and how to integrate with Nigeria's digital public
+infrastructure safely and repeatably.
+
+## The guidelines
+
+<Cards>
+  <Card
+    title="Integration Guide & Resource Catalogue"
+    href="/docs/integration/resource-catalogue"
+    description="The ecosystem asset catalogue - datasets, models, platforms, and governance frameworks, with prerequisites, access pathways, constraints, and integration routes."
+  />
+  <Card
+    title="Dataset Readiness & Training Guidelines"
+    href="/docs/integration/dataset-readiness"
+    description="Dataset licensing, pre-processing, bias mitigation, and multilingual AI development - plus dataset versioning, data cards, and reproducible training standards."
+  />
+  <Card
+    title="Sandbox Integration Toolkit & API Playbooks"
+    href="/docs/integration/sandbox-toolkit"
+    description="Integrating with the NIMC Identity API and other DPI platforms - interface and security requirements, toolkit components, seven API playbooks, and sandbox validation."
+  />
+</Cards>
+
+## How the three fit together
+
+They follow the order in which a solution team actually meets them:
+
+1. **Search the catalogue before building.** Reuse is the default on the Hub. A
+   new build needs a reason, and an asset nobody catalogued is an asset the next
+   team will rebuild.
+2. **Get the data ready.** Whatever the catalogue provides, it enters the
+   pipeline only through the licensing, pre-processing, bias, and versioning
+   standards - and leaves it through reproducible, auditable training runs.
+3. **Integrate with DPI through the toolkit.** Where a solution must touch
+   national identity or other DPI, it does so through shared, tested components
+   and playbooks, validated in the sandbox before production access is requested.
+
+## Where this connects
+
+- **Feasibility** - a use case cannot be judged
+  [technically feasible](/docs/capabilities/feasibility-assessment) if its data
+  assets are unlicensed, unprocessed, or unrepresentative, or if a DPI dependency
+  has no viable access pathway.
+- **Data readiness gate** - datasets that have not completed licensing review,
+  pre-processing, and bias audit do not pass
+  [Data Readiness](/docs/capabilities/data-readiness) and are not admitted to the
+  compute pipeline.
+- **Governance and risk** - licensing terms, consent constraints, retention
+  obligations, and DPI dependencies all feed the
+  [Governance &amp; Risk](/docs/capabilities/governance-risk) framework.
+- **Responsible AI** - bias audits and disaggregated, in-language evaluation are
+  inputs to the [Responsible AI](/docs/capabilities/responsible-ai) pre-deployment
+  gate.
+- **Prior work** - the
+  [Projects Archive](/docs/projects-archive/archive/archive-overview) is where
+  most of the catalogued assets come from.
