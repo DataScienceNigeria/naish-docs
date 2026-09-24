@@ -1,0 +1,297 @@
+---
+title: NIMC Identity API Reference
+description: The Enhanced NIMC Verification System (eNVS) - connection model, token-based authentication, the eleven service methods, the demographic response and permission model, and the NDPA obligations that attach to every call.
+---
+
+The **Enhanced NIMC Verification System (eNVS)** is the National Identity
+Management Commission's verification service: the interface through which an
+authorised organisation resolves or verifies a Nigerian identity against the
+national register.
+
+This page is the platform reference a team reads before designing an
+integration. It is drawn from NIMC's published API documentation - see
+[NIMC Verification Service API](https://nimc.gov.ng/nimc-verification-service-api)
+and the [eNVS API document](https://nimc.gov.ng/pdfs/nimc_eNVS_API_doc.pdf).
+NIMC's documentation is authoritative; where this page and NIMC's differ, NIMC's
+is correct.
+
+## Connection model
+
+eNVS is a **SOAP web service reached over a VPN**, not a public REST API. That
+shapes the whole integration, and three consequences follow immediately:
+
+1. **Network access is part of the deliverable.** A VPN tunnel to NIMC must be
+   established and kept up before a single call succeeds. Treat it as
+   infrastructure with its own monitoring, not as a developer machine setting.
+2. **There is no public test endpoint to point at.** Development happens against
+   a local mock of the service contract; the real service is reachable only from
+   inside the tunnel, from the hosts NIMC has authorised.
+3. **The service contract is WSDL-defined.** Client code is generated from the
+   WSDL NIMC provides rather than hand-written, which is what makes the typed
+   client library in the [toolkit](/docs/integration/integration-toolkit)
+   practical.
+
+NIMC's documented basic steps are:
+
+1. Establish a connection to the service via VPN.
+2. Call `createToken` with `username`, `password`, and `orgid`.
+3. Use the `loginString` component of the returned token object for all
+   subsequent calls.
+
+## Authentication
+
+Authentication is **token-based, with short-lived one-time tokens**.
+
+| Method | Input | Returns |
+| --- | --- | --- |
+| `createToken` | `username`, `password`, `orgid` | A `tokenObject` containing `loginObject` and `loginString` |
+| `createTokenString` | `username`, `password`, `orgid` | The token as a plain string |
+| `changePassword` | `token`, `newpassword` (hash of the new password) | `loginObject` and `loginString` |
+
+The `loginObject` carries a `token`, a `timestamp`, a `tokenStringx`, and an
+`lMessage` of type `loginMessage`. The `loginMessage` is worth reading on first
+login rather than discarding: it carries `authenticated`, `expireTime`,
+`loginExpiryTimeInMinutes`, `orgid`, `orgname`, `status`, and - importantly -
+`demoPermission` and `requestTypePermission`, which tell the caller **what this
+organisation is actually allowed to see and do**.
+
+### Token handling rules
+
+Tokens expire after a set period; `createToken` must be called again for a fresh
+one. NIMC states this explicitly. The Hub's rules follow from it:
+
+- **Cache the token** for the lifetime the `loginMessage` reports, with a safety
+  margin, and refresh proactively. Do not call `createToken` per request - it
+  turns every verification into two calls and doubles the credential exposure.
+- **Never log `loginString`, `token`, `tokenStringx`, or the password.** A token
+  in a log is a usable credential.
+- **Store the service credentials in the platform secret store**, injected at
+  runtime, and rotate them on NIMC's schedule and on any suspected exposure.
+- **Re-authenticate once on expiry, then fail closed.** A token refresh loop
+  against a national service is an outage amplifier.
+
+## Verification modes available from NIMC
+
+Before the method list, the larger point: **eNVS is one of several ways to verify
+an identity against the national register, and it is not the only one a solution
+may use.** NIMC describes its verification service as supporting verification by
+**NIN alone**, by **NIN with fingerprint**, and by **demographic data**; facial
+authentication and liveness detection are offered through
+[NINAuth](https://ninauth.nimc.gov.ng/) and through NIMC's approved verification
+partners rather than through the eNVS SOAP methods below.
+
+| Mode | What it proves | Where it lives | Typical use |
+| --- | --- | --- | --- |
+| **NIN alone** | The NIN exists and its record matches the attributes claimed | eNVS `searchByNIN` | Record lookup, registration, attribute confirmation |
+| **Demographic** | A person matching these attributes exists | eNVS `searchByDemo`, `searchByDemoPhone` | Candidate resolution where no NIN is available |
+| **Document number** | A registered document exists | eNVS `searchByDocumentNumber` | Credential and document checks |
+| **NIN + fingerprint** | The person present is the holder of that NIN | eNVS `verifyFingerWithData` | In-person, device-attended verification |
+| **Facial authentication and liveness** | A live person's face matches the registered identity | NINAuth and NIMC verification partners | Remote and self-service verification, including mobile |
+| **User-authorised token** | The holder consented to this verification, without disclosing their NIN | NINAuth | Consent-first flows where the relying party should never see the NIN |
+
+Choosing a mode is a design decision with real consequences for who can use the
+service:
+
+- **NIN alone is a legitimate verification mode**, not merely a lookup. Where
+  the risk is moderate and the claim is corroborated by other context - a
+  returning patient, an enrolled learner, a known phone number - confirming the
+  NIN and matching names and date of birth may be exactly proportionate.
+  Requiring a biometric on top of it is a barrier that must earn its place.
+- **Facial authentication reaches people fingerprints do not.** Worn or damaged
+  fingerprints are common among manual workers and older people, and fingerprint
+  readers are scarce outside attended settings. A face check needs only a camera,
+  which most phones already have, so offering both modalities is an inclusion
+  measure as much as a security one.
+- **Liveness detection is what makes a face check meaningful.** Without it, a
+  printed photograph or a screen passes. Any facial mode used for a
+  consequential decision must include liveness.
+- **Token-based consent flows keep the NIN out of the relying party's systems
+  entirely.** Where NINAuth's model fits - the holder authorises the check from
+  their own device - it is the strongest data-minimisation option available,
+  because there is no NIN to store, redact, or leak.
+
+Access to NINAuth, to partner-provided facial services, and to eNVS are
+**separate arrangements with separate onboarding**. Confirm which modes an
+organisation is actually entitled to before designing a flow around one.
+
+## eNVS service methods
+
+eNVS exposes eleven methods. Two classes matter for design: **identification**
+(find a record from attributes - a 1:N search) and **verification** (confirm a
+claim about a known identity - a 1:1 check).
+
+| Method | Parameters (besides `token`) | Class | Purpose |
+| --- | --- | --- | --- |
+| `searchByNIN` | `nin` | Identification | Look up a record by NIN |
+| `searchByDocumentNumber` | `doc` | Verification (1:1) | Verify using a document number |
+| `searchByDemo` | `DemoDataMandatory` (`firstname`, `lastname`, `dateOfBirth`, `gender`) | Identification | Identify from demographic attributes |
+| `searchByDemoPhone` | telephone number | Identification | Identify from a registered phone number |
+| `searchByFinger` | `data`, `FingerPositionCode` | Identification | Single-fingerprint search, position known |
+| `searchByFingerR` | `data` | Identification | Recursive fingerprint search, position unknown |
+| `verifyFingerWithData` | `nin`, `fingerStringInBase64`, `pos` | Verification (1:1) | Confirm a fingerprint against a specific NIN |
+| `getPermissionByLevel` | `level` | Governance | Report which demographic fields a level may access |
+| `updateUserSELF` | `nin`, `surname`, `firstname`, `phone`, `email` | Account | Update the calling user's own account details |
+| `changePassword` | `newpassword` | Account | Change the account password |
+| `createToken` / `createTokenString` | `username`, `password`, `orgid` | Auth | Obtain a session token |
+
+### Choosing between them
+
+- **Prefer 1:1 verification over 1:N identification.** `verifyFingerWithData`
+  confirms a claim the person has already made; `searchByFingerR` searches the
+  national register for whoever matches. The first is proportionate for service
+  delivery; the second is a far broader operation and needs a correspondingly
+  stronger justification.
+- **`searchByFingerR` is a recursive search** across finger positions. It is the
+  fallback for when position is unknown, not the default - it does more work
+  upstream for the same answer.
+- **Demographic search is fuzzy by nature.** `searchByDemo` takes only first
+  name, last name, date of birth, and gender. Across a population of 200
+  million, that combination is not reliably unique. Treat a demographic match as
+  a candidate, not a confirmation, and never as an authentication factor on its
+  own.
+- **Fingerprint is not the only biometric route.** Where a solution needs to
+  confirm a live person and cannot rely on fingerprint capture - no reader, worn
+  prints, a remote or self-service channel - facial authentication with liveness
+  through NINAuth or a verification partner covers the same requirement. Design
+  for both where the population and the channel make fingerprint capture
+  unreliable.
+
+## Fingerprint position codes
+
+`searchByFinger` and `verifyFingerWithData` take a finger position. The
+enumeration is:
+
+| Code | Finger | Code | Finger |
+| --- | --- | --- | --- |
+| 1 | Right thumb | 6 | Left thumb |
+| 2 | Right index | 7 | Left index |
+| 3 | Right middle | 8 | Left middle |
+| 4 | Right ring | 9 | Left ring |
+| 5 | Right little | 10 | Left little |
+
+Codes 11-15 are defined in the enumeration but marked not used. Fingerprint data
+is passed as a base64 string; capture quality at the device is the main
+determinant of match success, so a solution that cannot control the capture
+device should expect a higher no-match rate and must design for it rather than
+treating every no-match as fraud.
+
+## The response: `demoData`
+
+Every search and verify method returns the same shape: a `data` element of type
+`demoData`, plus a `returnMessage` string.
+
+`demoData` is **large**. It can carry, among others:
+
+- **Identity and record** - `nin`, `centralID`, `trackingId`, `batchid`,
+  `documentno`, `cardstatus`
+- **Names** - `surname`, `firstname`, `middlename`, `othername`, `maidenname`,
+  `title`, and previous names (`psurname`, `pfirstname`, `pmiddlename`)
+- **Core demographics** - `birthdate`, `gender`, `heigth`, `maritalstatus`,
+  `religion`, `profession`, `educationallevel`, `emplymentstatus`
+- **Place** - `birthcountry`, `birthstate`, `birthlga`, origin
+  (`self_origin_state`, `self_origin_lga`, `self_origin_place`), and residence
+  (`residence_AdressLine1/2`, `residence_Town`, `residence_lga`,
+  `residence_state`, `residence_postalcode`, `residencestatus`)
+- **Contact** - `telephoneno`, `email`
+- **Language** - `nspokenlang`, `ospokenlang`
+- **Biometrics and images** - `photo`, `signature`
+- **Next of kin** - `nok_surname`, `nok_firstname`, `nok_middlename`,
+  `nok_address1/2`, `nok_town`, `nok_lga`, `nok_state`, `nok_postalcode`
+
+### Field-level permissions
+
+Field access is **granted per organisation and per level**, not per request.
+`getPermissionByLevel(token, level)` returns a `demoMapPermission`: a boolean per
+field group - `names`, `pnames`, `nin`, `photo`, `signature`, `telephoneno`,
+`email`, `birthdate`, `birthstate`, `birthlga`, `birthcountry`, `gender`,
+`heigth`, `religion`, `profession`, `educationallevel`, `emplymentstatus`,
+`maritalstatus`, `residence_address`, `residencestatus`, `self_origin_state`,
+`self_origin_lga`, `self_origin_place`, `nok_names`, `nok_address`,
+`documentno`, `cardstatus`, `batchid`, `nspokenlang`, `ospokenlang`, `title`,
+`userID` - plus an `atype` of type `accessType` carrying the `level`.
+
+Two practical points:
+
+- **Query the permission map at startup and assert against it.** If the
+  integration expects a field the organisation is not entitled to, that should
+  fail loudly at deployment, not silently return empty values in production.
+- **`requestTypePermission`** on the `loginMessage` reports which *request
+  types* the organisation may use - `nin`, `demo`, `doc`, `bio`, `ninbio`. This
+  is the check that tells you whether biometric verification is available to
+  this account at all, before a single biometric is captured.
+
+The permission map is the platform enforcing least privilege for you. The
+solution's own field minimisation sits on top of it, not instead of it.
+
+## Error and result handling
+
+Results arrive in `returnMessage` rather than as HTTP status codes - a
+consequence of the SOAP model. A robust client therefore separates three
+outcomes that are easy to conflate:
+
+| Outcome | Meaning | Correct behaviour |
+| --- | --- | --- |
+| **Match** | A record was returned | Extract only the permitted, needed fields |
+| **No match** | The service answered; nothing matched | A legitimate business answer - not an error, not a failure to verify |
+| **Service failure** | Transport error, SOAP fault, expired token, VPN down | Fail closed: "cannot verify right now" |
+
+A no-match and a service failure must never reach the user as the same message,
+and neither may ever be resolved by assuming success. On identity, the failure
+mode is always **closed**.
+
+Map every outcome into the toolkit's error taxonomy - retryable, client error,
+auth failure, quota, upstream outage - so that retry and circuit-breaker
+behaviour is consistent with every other DPI integration on the Hub.
+
+## NDPA obligations specific to eNVS
+
+The general data-handling rules are in the
+[toolkit](/docs/integration/integration-toolkit). Three deserve restating
+because eNVS makes them concrete:
+
+1. **Consent is per lookup, per purpose.** Before a call, the solution must hold
+   a recorded, timestamped consent from the data subject for that specific
+   verification and purpose. A general terms-of-service acceptance is not
+   consent to query the national identity register.
+2. **A NIN is sensitive in itself.** It must be redacted or hashed in logs,
+   never used as a database primary key visible to application users, and never
+   returned to a client application that does not need it.
+3. **eNVS responses never enter training data.** No model is trained,
+   fine-tuned, or evaluated on `demoData`. Where an AI agent acts on verified
+   identity, it receives the minimum derived assertion - "verified",
+   "age over 18" - through a bounded tool, not the identity record.
+
+## What to establish with NIMC before building
+
+The published documentation defines the contract; the operational envelope comes
+from onboarding. Confirm in writing:
+
+- The service endpoint and WSDL, and the VPN configuration and authorised hosts.
+- The organisation's `orgid`, access level, and the resulting permission map.
+- Which request types the organisation is entitled to (`nin`, `demo`, `doc`,
+  `bio`, `ninbio`).
+- Token lifetime, and any rate limits, quotas, or per-call charges.
+- Support and escalation route, and the notice period for contract changes.
+- Any audit or reporting obligations NIMC places on the consuming organisation.
+
+## Reference workflows
+
+The worked examples that apply this reference to real use cases:
+
+<Cards>
+  <Card
+    title="Use Case: Patient Identity in Health Records"
+    href="/docs/integration/integration-toolkit/usecase-health-records"
+    description="Resolving and confirming a patient identity at the point of care, including the offline and no-match paths."
+  />
+  <Card
+    title="Use Case: Farmer Enrolment"
+    href="/docs/integration/integration-toolkit/usecase-agriculture-enrolment"
+    description="Low-assurance enrolment over a phone channel, and why demographic matching is not authentication."
+  />
+  <Card
+    title="Use Case: Learner Credential Verification"
+    href="/docs/integration/integration-toolkit/usecase-education-credentials"
+    description="Verifying a learner against a credential record, and the MCP-bounded pattern for AI agents that act on the result."
+  />
+</Cards>

@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "build": "next build",
-    "dev": "next dev",
-    "start": "serve out",
+    "dev": "next dev -p ${NAISH_DOCS_PORT:-3007}",
+    "start": "serve out -l ${NAISH_DOCS_PORT:-3007}",
     "types:check": "fumadocs-mdx && next typegen && tsc --noEmit",
     "postinstall": "fumadocs-mdx",
     "lint": "eslint"

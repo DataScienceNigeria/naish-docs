@@ -2,6 +2,7 @@
   "pages": [
     "index",
     "capabilities",
+    "integration",
     "infrastructure",
     "templates",
     "projects-archive",

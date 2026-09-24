@@ -15,7 +15,7 @@ organisation and hosted on GitHub Pages, Vercel, or any static host.
 
 ```bash
 npm install
-npm run dev      # http://localhost:3000  → redirects to /docs
+npm run dev      # http://localhost:3007  → redirects to /docs
 ```
 
 ## Build (static export)

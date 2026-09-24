@@ -1,0 +1,426 @@
+---
+title: Dataset Readiness & Training Guidelines
+description: Guidance on dataset licensing, pre-processing, bias mitigation, and multilingual AI development - plus dataset versioning, data cards, and reproducible training standards for teams working with Nigerian and multilingual datasets.
+---
+The Hub does not start from scratch. National use cases arrive with **existing
+datasets, prior corpora, third-party models, and inherited licensing terms** that
+must be assessed, cleaned, and governed before any of them touch the compute
+pipeline. This page provides practical guidance on how teams should handle
+dataset licensing, pre-processing, bias, and multilingual readiness - turning
+raw assets into pipeline-ready, legally sound, representative data.
+
+## Dataset licensing, provenance, and access
+
+Every dataset entering the Hub must pass a licensing and provenance review.
+On a shared national resource serving health, agriculture, and education, an
+unresolved licence term can block an entire workload - or worse, expose the Hub
+to legal liability after deployment.
+
+### What teams must establish
+
+- **Licence type and permissions** - identify the exact licence (Creative
+  Commons variant, government open-data licence, proprietary agreement, or
+  bespoke research licence) and confirm it permits the intended use: training,
+  fine-tuning, inference, redistribution, or commercial deployment. Many
+  open-source corpora permit research but restrict commercial use, a distinction
+  that matters when the Hub serves production national services.
+- **Consent constraints** - for any data involving personal information -
+  especially health records, voice recordings, and educational assessments -
+  verify that the original consent covers AI training and model deployment, not
+  only the study or service the data was collected for. Alignment with the
+  **Nigeria Data Protection Act (NDPA)** is mandatory, not optional. Health and
+  financial datasets require explicit, informed consent review.
+- **Provenance and chain of custody** - document where the dataset originated,
+  who collected it, how it was transmitted to the Hub, and whether any
+  intermediate processing (anonymisation, translation, re-labelling) altered
+  its composition. If provenance is unclear, the dataset is not ready.
+- **Access conditions and restrictions** - some datasets are available only
+  under data-use agreements, embargo periods, or institutional access controls.
+  Record these constraints in the workload metadata so scheduling and
+  retention policies respect them. Data that must be deleted after a training
+  window must not linger on the 7.6 TB scratch or MinIO object store.
+
+### Practical checklist
+
+| Check                    | Question to answer                                          | Blocking if unresolved                  |
+| ------------------------ | ----------------------------------------------------------- | --------------------------------------- |
+| Licence on file          | Is the full licence text stored alongside the dataset?      | Yes                                     |
+| Use-case match           | Does the licence permit training, fine-tuning, and serving? | Yes                                     |
+| NDPA alignment           | Has a data-protection assessment been completed?            | Yes - for personal data                 |
+| Consent scope            | Does original consent cover AI model development?           | Yes - for health, voice, education data |
+| Provenance log           | Is the collection-to-Hub chain documented?                  | Yes                                     |
+| Retention terms          | Are deletion or expiry obligations recorded?                | Yes - if time-bound                     |
+| Third-party dependencies | Are upstream dataset licences compatible?                   | Yes - for derived or composite datasets |
+
+## Pre-processing standards
+
+Raw data is not pipeline-ready data. The Hub requires teams to follow consistent
+pre-processing standards so that datasets arriving from different institutions,
+projects, and languages can be staged, combined, and versioned without ad-hoc
+guesswork.
+
+### Cleaning
+
+- **Remove duplicates** - exact and near-duplicate records inflate training
+  sets and skew evaluation metrics. Deduplication should happen before any
+  split.
+- **Handle missing values explicitly** - document whether missing fields are
+  dropped, imputed, or flagged. Silent imputation introduces hidden bias.
+- **Strip artefacts** - encoding errors, HTML tags, OCR noise, and
+  transcription timestamps that are not part of the target signal must be
+  removed or normalised. For voice data, strip non-speech segments (silence,
+  background noise, interviewer prompts) unless they are labelled training
+  targets.
+- **Validate schema** - every dataset should conform to a declared schema
+  (column names, types, units, expected ranges) before it enters the pipeline.
+  Schema mismatches between institutions are one of the most common causes of
+  silent training failures.
+- **Detect and redact personal data** - run automated PII detection over every
+  dataset before staging: names, phone numbers, NINs, BVNs, addresses, dates of
+  birth, facility identifiers, and free-text fields where identifiers leak.
+  Redact, hash, or pseudonymise according to what the use case actually needs,
+  and record which strategy was applied per field. Free-text clinical notes and
+  transcribed speech are the highest-risk surfaces - identifiers appear inside
+  the content, not only in the metadata columns. This is the concrete step that
+  makes the consent and NDPA position above enforceable rather than declared.
+
+### Annotation
+
+- **Annotation guidelines** - publish written guidelines before annotation
+  begins, not after. Guidelines should define label categories, edge cases,
+  and inter-annotator agreement targets.
+- **Multi-annotator review** - for safety-critical use cases (clinical,
+  educational assessment), require at least two independent annotators per
+  sample and measure inter-annotator agreement (Cohen's kappa or equivalent).
+  Single-annotator labels are acceptable only for low-risk, high-volume tasks
+  with spot-check audit.
+- **Language-aware annotation** - annotators must be fluent speakers of the
+  target language and dialect. Annotation by non-speakers - even with
+  translation tools - introduces systematic labelling error that is difficult
+  to detect downstream.
+
+### Normalisation
+
+- **Text normalisation** - standardise character encoding (UTF-8), casing
+  rules, punctuation, and diacritics. For Nigerian languages with tonal
+  marking (Yoruba, Igbo), define whether tone marks are preserved, stripped,
+  or normalised to a canonical form, and apply that rule consistently.
+- **Audio normalisation** - resample to a consistent rate (16 kHz is the
+  Whisper standard), normalise amplitude, and segment into uniform-length
+  clips or sentence-aligned utterances.
+- **Numeric and unit normalisation** - standardise currency (Naira), dates,
+  measurements, and geographic references to canonical formats so models do
+  not learn spurious distinctions between "N5,000" and "5000 Naira".
+
+### Synthetic, augmented, and machine-translated data
+
+Low-resource languages tempt teams into manufacturing data. Manufactured data is
+permitted on the Hub, but never silently.
+
+- **Label it** - every synthetic, augmented, or machine-translated record must
+  carry a provenance flag distinguishing it from human-produced data. A dataset
+  that mixes the two without labelling cannot be audited and does not pass the
+  readiness gate.
+- **Keep it out of test and evaluation splits** - synthetic and
+  machine-translated records may appear in training data. They must **never**
+  appear in validation or test splits. Evaluating a Nigerian-language model on
+  machine-translated English benchmarks measures the translator, not the model,
+  and reliably overstates performance.
+- **Machine translation is not a substitute for in-language data** - translating
+  an English corpus into Hausa or Igbo reproduces English syntax, idiom, and
+  cultural framing in local-language surface forms. Use it, if at all, as a
+  bootstrap for training volume - never as the basis for evaluation, and never
+  as a reason to skip native-speaker data collection.
+- **Record the generator** - for synthetic data, document which model or rule
+  set produced it, with what prompt or configuration, and at what date. Synthetic
+  data generated by a model that was itself trained on the target test set is a
+  leakage path.
+- **Cap the ratio** - declare the proportion of synthetic to human data in the
+  data card. Where synthetic data dominates a language or class, say so
+  explicitly: it is a known limitation of the resulting model, not an
+  implementation detail.
+
+### Data splits
+
+- **Train / validation / test splits** - define splits before any model
+  training begins and freeze them. Use **80/10/10 for large datasets**, where
+  10% still yields enough samples per language and demographic group to measure
+  disaggregated performance; use **70/15/15 for smaller datasets**, where the
+  larger held-out fractions are needed to make per-group metrics meaningful. The
+  deciding question is not the ratio but whether the smallest group you intend
+  to report on has enough test samples to produce a stable number. The key
+  requirement is that splits are **stratified** by language, region, and
+  demographic group so that no split is unrepresentative.
+- **Speaker and source independence** - for voice and text data, ensure that
+  the same speaker, author, or source institution does not appear in both
+  train and test splits. Leakage across splits inflates reported accuracy and
+  hides real-world failure modes.
+- **Temporal splits where applicable** - for time-series data (health records,
+  agricultural yield), split by time period rather than randomly to avoid
+  look-ahead bias.
+- **Version and publish splits** - register splits in the Hub's experiment
+  tracking (MLflow) so that every evaluation references an immutable,
+  reproducible partition.
+
+### Dataset versioning
+
+Registering splits is not enough. The question the Hub must be able to answer
+about any deployed model is **"which data trained this?"** - and that requires
+the dataset itself to be versioned, not only its partitions.
+
+- **Assign a dataset version ID** to every dataset that enters the pipeline, and
+  increment it on any change to content, schema, pre-processing, or
+  pre-processing parameters. A re-run with a different cleaning rule produces a
+  new version, not an update to the old one.
+- **Make versions immutable** - a version, once registered and used in training,
+  is never modified in place. Corrections create a successor version with a
+  documented reason for the change.
+- **Record the version alongside the split** in MLflow, so every experiment
+  references both the dataset version and the partition within it.
+- **Store a content hash** for each version so that a dataset on the object store
+  can be verified against the version it claims to be.
+- **Keep the lineage** - where a dataset derives from an upstream corpus
+  (AfricanVoices, a partner dataset, a previous version), record the parent
+  version and the transformation applied. Composite datasets record every parent.
+
+## Training guidelines
+
+Data readiness ends where training begins, but the same reproducibility and
+governance obligations carry through. A model whose training run cannot be
+reconstructed cannot be audited, reproduced, or safely retrained after an
+incident.
+
+### Reproducibility
+
+- **Pin the environment** - record the container image digest, framework
+  versions, CUDA and driver versions, and the node configuration the run
+  executed on. A tag is not a pin; a digest is.
+- **Set and record random seeds** for data ordering, initialisation, and
+  augmentation. Where full determinism is impractical on GPU, say so and record
+  which sources of non-determinism remain.
+- **Log the full configuration** - hyperparameters, optimiser, schedule, batch
+  size, gradient accumulation, precision (fp16, bf16), and any distributed
+  training topology - to MLflow, automatically rather than by hand.
+- **Reference the dataset version and split** registered above. A run that does
+  not name both is not reproducible and should not be promoted.
+- **Record the base model and checkpoint** where the run is a fine-tune,
+  including its source, licence, and revision.
+
+### Running and checkpointing
+
+- **Checkpoint regularly** and retain the checkpoints an evaluation or rollback
+  might need - not only the final weights. On a shared national resource, a run
+  that must restart from zero after a pre-emption wastes capacity other teams
+  were queued for.
+- **Define stopping criteria in advance** - target metric, patience, and a
+  maximum compute budget. Runs without a declared stopping condition are the
+  main source of idle GPU consumption on a shared node.
+- **Declare a compute budget per run** at submission, sized from a short pilot
+  run rather than estimated. Teams should expect to justify budgets that exceed
+  their pilot's implied cost.
+- **Monitor for divergence and silent failure** - loss plateaus, NaNs, and
+  collapsing validation metrics should abort a run, not consume its full budget.
+- **Evaluate on the frozen test split only at the end.** Repeatedly consulting
+  the test split during development converts it into a validation set and
+  invalidates the reported result.
+
+### Evaluation and promotion
+
+- **Report disaggregated metrics** by language, dialect, gender, region, and any
+  other axis the representation audit identified. Aggregate accuracy alone does
+  not satisfy the [Responsible AI](/docs/capabilities/responsible-ai) gate.
+- **Evaluate in-language with native speakers** for generative and conversational
+  outputs, per the multilingual guidance below.
+- **Test code-switched and dialectal inputs** as a standard part of evaluation,
+  not as an optional extra pass.
+- **Register the trained model** in MLflow with its dataset version, split,
+  configuration, environment digest, and evaluation results attached. A model
+  without this record does not proceed to deployment review.
+
+## Bias identification, mitigation, and responsible multilingual development
+
+Bias in data becomes bias in models. On a national resource serving 200 million
+people across hundreds of languages and dialects, unaddressed bias does not just
+degrade accuracy - it excludes communities. Bias mitigation is therefore a
+pre-processing and governance obligation, not a post-hoc audit.
+
+### Identifying bias
+
+- **Representation audit** - before training, measure the demographic
+  composition of the dataset: language distribution, geographic coverage,
+  gender balance, age range, urban/rural split. Compare against the target
+  population. If Hausa speakers are 30% of the target users but 5% of the
+  training data, the model will underserve them.
+- **Label distribution audit** - check for class imbalance and systematic
+  labelling patterns that correlate with annotator demographics or source
+  institutions.
+- **Historical and selection bias** - datasets collected from urban hospitals,
+  university campuses, or digital platforms systematically under-represent
+  rural, low-literacy, and offline populations. Document these gaps explicitly
+  rather than treating the dataset as nationally representative by default.
+- **Measurement bias** - different collection instruments, microphone quality,
+  or transcription standards across sites introduce variation that models may
+  learn as signal rather than noise.
+
+### Mitigating bias
+
+- **Targeted data collection** - where audits reveal under-representation,
+  prioritise supplementary data collection for the missing groups before
+  training, rather than relying on algorithmic fixes after the fact.
+  [AfricanVoices](/docs/projects-archive/archive/african-voices) is an example
+  of this approach: deliberately curating speech across Hausa, Igbo, Nigerian
+  Pidgin, and Yoruba with demographic metadata.
+- **Stratified sampling** - when full balance is not achievable, use stratified
+  sampling or oversampling of minority groups to reduce skew during training.
+  Document the sampling strategy and its rationale.
+- **Disaggregated evaluation** - do not report aggregate accuracy alone. Break
+  evaluation metrics down by language, dialect, gender, region, and any other
+  relevant demographic axis. A model that scores 92% overall but 68% on Igbo
+  inputs is not ready for national deployment.
+- **Bias documentation** - publish a data card for every dataset entering the
+  pipeline, documenting known biases, limitations, and the populations for which
+  the data is and is not representative. The required fields are set out below.
+
+### Data card requirements
+
+A data card is the dataset's public record. It is mandatory for every dataset
+entering the pipeline, and it is what a reviewer reads when deciding whether a
+model built on that dataset can be deployed. So that cards are comparable across
+teams and institutions, every card carries the same fields:
+
+| Field | Content |
+| --- | --- |
+| **Dataset name and version** | Name plus the immutable version ID and content hash |
+| **Owner and custodian** | Originating institution, and who is accountable for it on the Hub |
+| **Licence** | Exact licence, permitted uses, and any redistribution limits |
+| **Consent basis** | What consent was obtained, for what purpose, and whether it covers AI training and deployment |
+| **Provenance** | Collection method, dates, instruments, and the chain from collection to Hub ingestion |
+| **Composition** | Record count, size, modalities, schema, and label set |
+| **Language and dialect coverage** | Languages, dialects, and the distribution across them |
+| **Demographic coverage** | Geography, gender, age, urban/rural, and any other relevant axis, with distributions |
+| **Pre-processing applied** | Cleaning, normalisation, annotation, and PII redaction steps, with parameters |
+| **Synthetic content** | Proportion and provenance of synthetic, augmented, or machine-translated records |
+| **Splits** | Split definition, ratios, stratification, and independence guarantees |
+| **Known biases and gaps** | Under-represented groups, selection and measurement bias, and populations the data does **not** represent |
+| **Appropriate uses** | Use cases the dataset supports |
+| **Inappropriate uses** | Use cases it must not be used for, stated explicitly |
+| **Retention and deletion** | Retention period, deletion obligations, and expiry date if time-bound |
+| **Contact and review date** | Who to ask, and when the card was last reviewed |
+
+Two rules make the card useful rather than ceremonial: **state the gaps
+explicitly** - a card that lists only what the dataset covers is a marketing
+document - and **update the card with the dataset version**, since a card that
+describes a superseded version is worse than no card at all.
+
+### Responsible multilingual AI development
+
+Building AI that works across Nigerian languages requires more than translating
+English prompts. It demands linguistic and cultural grounding at every layer.
+
+- **Language-first design** - define the target languages and dialects at
+  project inception, not as an afterthought. Language choice shapes data
+  collection, annotation, model selection, and evaluation - retrofitting
+  multilingual support onto an English-only pipeline is expensive and
+  produces weaker results.
+- **Use local-language base models where available** - the **N-ATLaS-LLM 8B**
+  and **AfricanVoices** corpora exist precisely to avoid starting from
+  English-only foundations. Fine-tuning a Nigerian-language model on
+  domain-specific data is more effective than fine-tuning a purely English
+  model with translated examples.
+- **Evaluate in-language** - test models with native-speaker evaluators in each
+  target language, not with back-translated English benchmarks. Fluency,
+  cultural appropriateness, and factual accuracy must be judged by speakers
+  of the language.
+- **Handle code-switching** - Nigerian users frequently switch between English
+  and local languages within a single utterance or message. Models must be
+  tested on code-switched inputs, not only monolingual samples.
+- **Respect dialectal variation** - Hausa spoken in Kano differs from Hausa
+  spoken in Sokoto; Yoruba in Lagos differs from Yoruba in Ibadan. Where
+  dialectal data exists, preserve it rather than collapsing to a single
+  standard form. Where it does not, document the gap.
+
+## Alignment to the Hub pipeline and governance model
+
+These standards are not standalone - they connect directly to the Hub's existing
+capability stack and governance framework.
+
+- **Data readiness gate** - datasets that have not completed licensing review,
+  pre-processing, and bias audit do not pass the
+  [Data Readiness](/docs/capabilities/data-readiness) assessment and are not
+  admitted to the compute pipeline. This is a hard gate, not a recommendation.
+- **Feasibility dependency** - a use case cannot be judged
+  [technically feasible](/docs/capabilities/feasibility-assessment) if its data
+  assets are unlicensed, unprocessed, or unrepresentative. Data readiness is a
+  prerequisite for feasibility sign-off.
+- **Governance framework integration** - licensing terms, consent constraints,
+  and retention obligations feed into the
+  [Governance &amp; Risk](/docs/capabilities/governance-risk) workload governance
+  framework. Access controls enforced via Keycloak and data residency on MinIO
+  ensure that governed data stays governed through the pipeline.
+- **GenAIGov alignment** - teams can use the
+  [GenAIGov](/docs/projects-archive/archive/genaigov) STANDARD framework to
+  self-assess governance maturity across the Data, Transparency, and
+  Accountability dimensions before requesting Hub access.
+- **Responsible AI gate** - bias audit results and disaggregated evaluation
+  metrics are inputs to the
+  [Responsible AI](/docs/capabilities/responsible-ai) assessment. A model that
+  has not been evaluated for fairness across languages and demographics does
+  not pass the pre-deployment safety gate.
+- **Experiment tracking** - all pre-processing steps, split definitions, and
+  bias audit results should be logged in MLflow so they are reproducible and
+  auditable, consistent with the
+  [Model Lifecycle](/docs/capabilities/model-testing) workflow.
+
+## Practical guidelines for teams
+
+The following guidelines summarise what teams working with Nigerian and
+multilingual datasets should do before, during, and after data preparation.
+
+### Before starting
+
+1. Obtain and file the full licence text for every dataset.
+2. Complete an NDPA data-protection assessment for any personal data.
+3. Verify consent scope covers AI training and deployment.
+4. Document provenance from original collection to Hub ingestion.
+5. Define target languages, dialects, and demographic coverage requirements.
+
+### During pre-processing
+
+6. Deduplicate, clean, and validate against a declared schema.
+7. Run PII detection and apply the declared redaction or pseudonymisation
+   strategy, including over free-text and transcribed fields.
+8. Normalise text encoding (UTF-8), audio sample rate (16 kHz), and units.
+9. Annotate with published guidelines, multi-annotator review for high-stakes
+   tasks, and language-fluent annotators.
+10. Flag any synthetic, augmented, or machine-translated records, and keep them
+    out of validation and test splits.
+11. Run a representation audit: language, region, gender, age, urban/rural.
+12. Create stratified, speaker-independent train/validation/test splits.
+13. Assign an immutable dataset version ID with a content hash, and record its
+    lineage.
+14. Register the dataset version, splits, and pre-processing metadata in MLflow.
+
+### Before submitting to the pipeline
+
+15. Publish a data card with all required fields, stating coverage gaps and
+    inappropriate uses explicitly.
+16. Confirm all licensing, consent, and retention terms are recorded in workload
+    metadata.
+17. Verify that disaggregated evaluation baselines exist for each target language
+    and demographic group.
+18. Submit dataset for [Data Readiness](/docs/capabilities/data-readiness) review.
+
+### During and after training
+
+19. Pin the environment by image digest and record seeds, configuration, and
+    node topology in MLflow.
+20. Reference the dataset version and frozen split in every run.
+21. Declare a compute budget and stopping criteria before submitting the run.
+22. Evaluate on the test split once, report disaggregated metrics, and test
+    code-switched and dialectal inputs.
+23. Register the trained model with its full data, configuration, and evaluation
+    lineage attached.
+
+Teams that follow these steps will clear the Hub's data-readiness and governance
+gates without rework - and build models that serve the populations they are meant
+to serve.
