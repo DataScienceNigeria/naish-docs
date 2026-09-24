@@ -25,12 +25,21 @@ the [agriculture template](/docs/templates/agriculture).
 | Send seasonal advisory content | None | **None** | No identity call |
 | Remember a farmer's crop, location, and history | Wrong personalisation; mild privacy leak | **Low** | Channel identifier only |
 | Link to a cooperative or extension officer's roster | Wrong person joins a group | **Low-Medium** | Channel identifier; `searchByDemoPhone` only if the roster requires it |
-| Disburse a subsidy, input voucher, or payment | Financial loss; fraud | **High** | `verifyFingerWithData` against a claimed NIN |
+| Disburse a subsidy, input voucher, or payment | Financial loss; fraud | **High** | `verifyFingerWithData`, or facial authentication with liveness, against a claimed NIN |
 
 Most of the service sits in the top two rows. An identity call is justified at
 the bottom row, where money moves - and the biometric burden is proportionate
 there because the consequence is real and the interaction is usually in person,
 at an agro-dealer or extension point with a device present.
+
+**Fingerprint is the wrong default for this population.** Farming wears
+fingerprints down, and a smallholder who has spent forty years working the land
+may simply have no readable print left. Facial authentication with liveness,
+available through
+[NINAuth and NIMC verification partners](/docs/integration/integration-toolkit/nimc-identity-api),
+needs only the camera on the phone already in the room. Where a programme offers
+one biometric modality only, choose it with this population in mind; where it can
+offer both, the farmer should not be the one who discovers the limitation.
 
 ## The default: no identity call at all
 
@@ -67,9 +76,13 @@ When a subsidy, voucher, or input disbursement is at stake:
    verified, why, and by whom. Consent is recorded with a timestamp and purpose.
 2. **The farmer asserts their NIN** - spoken to an extension officer, entered at
    an agro-dealer terminal, or captured at a cooperative office.
-3. **Capture a fingerprint** at a known position on the device present.
-4. **Call `verifyFingerWithData`** with the NIN, the base64 fingerprint, and the
-   position code - a 1:1 confirmation of the claim, not a search of the register.
+3. **Capture the biometric the setting supports** - a fingerprint at a known
+   position on an attached reader, or a facial capture with liveness on the
+   device present.
+4. **Call the 1:1 check** - `verifyFingerWithData` with the NIN, the base64
+   fingerprint, and the position code; or the facial verification the programme
+   is onboarded for. Either confirms the claim the farmer has made; neither
+   searches the register for whoever matches.
 5. **Retain only what the disbursement record needs**: a verification outcome, a
    timestamp, and the encrypted NIN as reference. Not the photo, not the
    next-of-kin block, not the residence block.
@@ -78,16 +91,19 @@ When a subsidy, voucher, or input disbursement is at stake:
 
 ## Failure paths
 
-### Fingerprint does not match
+### Biometric does not match
 
 Farming is manual work, and manual work wears fingerprints down. Expect a
-materially higher no-match rate in this population than in an office setting -
-and design for it as the normal case, not the exception.
+materially higher fingerprint no-match rate in this population than in an office
+setting - and design for it as the normal case, not the exception.
 
-The flow: retry once; try a second finger position; then route to a
-**documented manual verification** by a named extension officer or cooperative
-official, recorded against the disbursement. A farmer who cannot produce a usable
-fingerprint is not a fraud case, and the workflow must not treat them as one.
+The flow: retry once; try a second finger position; then **switch to facial
+authentication** where the programme supports it, since a farmer with unreadable
+prints usually has a perfectly verifiable face. Only when every available
+modality has failed does the flow route to **documented manual verification** by
+a named extension officer or cooperative official, recorded against the
+disbursement. A farmer who cannot produce a usable fingerprint is not a fraud
+case, and the workflow must not treat them as one.
 
 ### No NIN, or a NIN that does not match
 
@@ -120,7 +136,7 @@ identity access at all:
 | --- | --- |
 | An opaque conversation ID | The phone number as an identifier of record |
 | Crop, location, farm size the farmer volunteered | NIN or `demoData` |
-| "Eligible for programme X" as a flag | The verification record or biometric |
+| "Eligible for programme X" as a flag | The verification record, fingerprint, or face capture |
 | Language preference | Any national-register field |
 
 Verification and disbursement sit outside the conversational layer. The agent
@@ -136,7 +152,8 @@ farmer is in the national register.
    consequence.
 3. Consent wording translated into each supported language and tested for
    comprehension over voice as well as text.
-4. Biometric failure path tested, including the officer-attested fallback.
+4. Biometric failure path tested for each modality offered, including the
+   switch between them and the officer-attested fallback.
 5. Route for unenrolled farmers agreed with the programme owner.
 6. Offline and queued-verification behaviour tested on a real rural connection
    profile, not on office wifi.

@@ -20,13 +20,22 @@ the [health-records template](/docs/templates/health-records).
 | --- | --- | --- | --- |
 | Show general health information | None | None | No identity call |
 | Register a new patient | Duplicate record created | Medium | `searchByNIN` |
-| Open an existing clinical record | Wrong history read; wrong care given | **High** | `verifyFingerWithData` |
-| Write a diagnosis, prescription, or result | Harm to two patients at once | **High** | `verifyFingerWithData` |
+| Open an existing clinical record | Wrong history read; wrong care given | **High** | `verifyFingerWithData`, or facial authentication with liveness |
+| Write a diagnosis, prescription, or result | Harm to two patients at once | **High** | `verifyFingerWithData`, or facial authentication with liveness |
 
 Reading and writing clinical data is irreversible in effect - a wrong entry
 propagates into later care - so it sits at high assurance. Registration sits a
 step lower: a duplicate record is a data-quality problem, correctable, not a
 clinical one.
+
+**Offer both biometric modalities where the clinic can support them.** A patient
+whose fingerprints will not capture - manual workers, older patients, patients
+with certain skin conditions or hand injuries - is not an edge case in a Nigerian
+clinic, and neither is a clinic whose fingerprint reader has failed. Facial
+authentication with liveness, available through
+[NINAuth and NIMC verification partners](/docs/integration/integration-toolkit/nimc-identity-api),
+needs only a camera and reaches those patients. A service with one biometric
+route has a single point of exclusion.
 
 ## Workflow: first registration
 
@@ -40,9 +49,11 @@ clinical one.
    the patient record with an **internal record ID** as its key. The NIN is
    stored once, encrypted, as a verification reference - never as the primary
    key, and never displayed in the clinical UI.
-5. **Enrol the biometric reference** for subsequent visits: capture a fingerprint
-   and confirm it against the NIN with `verifyFingerWithData`, so that the
-   patient's later visits need no NIN re-entry.
+5. **Enrol a biometric reference** for subsequent visits - a fingerprint
+   confirmed against the NIN with `verifyFingerWithData`, or a facial
+   authentication through NINAuth or a verification partner - so that the
+   patient's later visits need no NIN re-entry. Where both are available, enrol
+   both: the second modality is the fallback when the first fails.
 6. **Record the audit event**: purpose, outcome, staff member, timestamp,
    correlation ID. Identifiers hashed.
 
@@ -50,17 +61,19 @@ clinical one.
 
 1. **Confirm consent** for this visit's lookup - consent is per lookup and
    purpose, not captured once at registration and reused indefinitely.
-2. **Capture the fingerprint** at the enrolled position.
-3. **Call `verifyFingerWithData`** with the NIN held against the record, the
-   base64 fingerprint, and the position code.
+2. **Capture the enrolled biometric** - the fingerprint at its enrolled
+   position, or a facial capture with liveness.
+3. **Call the matching 1:1 check** - `verifyFingerWithData` with the NIN held
+   against the record, the base64 fingerprint, and the position code; or the
+   facial verification the organisation is onboarded for.
 4. **On a confirmed match**, open the record and let care proceed.
-5. **Discard the biometric** from memory immediately. It is never written to
-   disk, never queued, never logged.
+5. **Discard the biometric** from memory immediately - face captures as strictly
+   as fingerprints. Neither is written to disk, queued, or logged.
 6. **Record the audit event.**
 
-The fingerprint is compared against the identity the record already claims - a
-1:1 check. The solution never searches the national register for whoever matches
-the print in front of it.
+Either way the biometric is compared against the identity the record already
+claims - a 1:1 check. The solution never searches the national register for
+whoever matches the print or face in front of it.
 
 ## Fields a health record may retain
 
@@ -93,16 +106,20 @@ The flow: re-enter the NIN once; if it still does not match, create the record a
 unverified record is usable clinically and visibly marked as unverified, so that
 it is not later mistaken for a confirmed identity.
 
-### Fingerprint does not match
+### Biometric does not match
 
-Causes: worn or damaged fingerprints (common among manual workers, the elderly,
-and patients with certain conditions), a poor reader, a wet or dirty finger.
+Causes, fingerprint: worn or damaged prints (common among manual workers, the
+elderly, and patients with certain conditions), a poor reader, a wet or dirty
+finger. Causes, facial: poor lighting, a low-quality camera, a face that has
+changed since registration, or a liveness check defeated by the environment
+rather than by the patient.
 
-The flow: retry once, then offer an alternative finger if another position was
-enrolled. On continued failure, fall back to **staff-attested identification** -
-a named clinician confirms the patient by other means and the record notes who
-attested and why. Two consecutive biometric failures is a service-design signal,
-not a fraud signal.
+The flow: retry once; try an alternative finger if another position was enrolled;
+then **switch modality** - a patient whose prints will not read may verify by
+face, and the reverse. Only after both available routes fail does the flow fall
+back to **staff-attested identification**, where a named clinician confirms the
+patient by other means and the record notes who attested and why. Repeated
+biometric failure is a service-design signal, not a fraud signal.
 
 ### eNVS unreachable
 
@@ -140,7 +157,8 @@ layer and reaches the agent only as a flag, through a bounded tool following the
 3. Field retention list signed off; the discard step tested against a full
    `demoData` response.
 4. No-match path tested end to end, including the unverified-record route.
-5. Biometric failure path tested, including the staff-attested fallback.
+5. Biometric failure path tested for each modality offered, including the
+   switch between them and the staff-attested fallback.
 6. Degraded mode agreed with clinical governance and the reconciliation queue
    tested.
 7. NIN confirmed absent from logs, URLs, analytics, and the clinical UI.

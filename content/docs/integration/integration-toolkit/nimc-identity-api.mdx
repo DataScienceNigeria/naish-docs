@@ -70,7 +70,51 @@ one. NIMC states this explicitly. The Hub's rules follow from it:
 - **Re-authenticate once on expiry, then fail closed.** A token refresh loop
   against a national service is an outage amplifier.
 
-## Service methods
+## Verification modes available from NIMC
+
+Before the method list, the larger point: **eNVS is one of several ways to verify
+an identity against the national register, and it is not the only one a solution
+may use.** NIMC describes its verification service as supporting verification by
+**NIN alone**, by **NIN with fingerprint**, and by **demographic data**; facial
+authentication and liveness detection are offered through
+[NINAuth](https://ninauth.nimc.gov.ng/) and through NIMC's approved verification
+partners rather than through the eNVS SOAP methods below.
+
+| Mode | What it proves | Where it lives | Typical use |
+| --- | --- | --- | --- |
+| **NIN alone** | The NIN exists and its record matches the attributes claimed | eNVS `searchByNIN` | Record lookup, registration, attribute confirmation |
+| **Demographic** | A person matching these attributes exists | eNVS `searchByDemo`, `searchByDemoPhone` | Candidate resolution where no NIN is available |
+| **Document number** | A registered document exists | eNVS `searchByDocumentNumber` | Credential and document checks |
+| **NIN + fingerprint** | The person present is the holder of that NIN | eNVS `verifyFingerWithData` | In-person, device-attended verification |
+| **Facial authentication and liveness** | A live person's face matches the registered identity | NINAuth and NIMC verification partners | Remote and self-service verification, including mobile |
+| **User-authorised token** | The holder consented to this verification, without disclosing their NIN | NINAuth | Consent-first flows where the relying party should never see the NIN |
+
+Choosing a mode is a design decision with real consequences for who can use the
+service:
+
+- **NIN alone is a legitimate verification mode**, not merely a lookup. Where
+  the risk is moderate and the claim is corroborated by other context - a
+  returning patient, an enrolled learner, a known phone number - confirming the
+  NIN and matching names and date of birth may be exactly proportionate.
+  Requiring a biometric on top of it is a barrier that must earn its place.
+- **Facial authentication reaches people fingerprints do not.** Worn or damaged
+  fingerprints are common among manual workers and older people, and fingerprint
+  readers are scarce outside attended settings. A face check needs only a camera,
+  which most phones already have, so offering both modalities is an inclusion
+  measure as much as a security one.
+- **Liveness detection is what makes a face check meaningful.** Without it, a
+  printed photograph or a screen passes. Any facial mode used for a
+  consequential decision must include liveness.
+- **Token-based consent flows keep the NIN out of the relying party's systems
+  entirely.** Where NINAuth's model fits - the holder authorises the check from
+  their own device - it is the strongest data-minimisation option available,
+  because there is no NIN to store, redact, or leak.
+
+Access to NINAuth, to partner-provided facial services, and to eNVS are
+**separate arrangements with separate onboarding**. Confirm which modes an
+organisation is actually entitled to before designing a flow around one.
+
+## eNVS service methods
 
 eNVS exposes eleven methods. Two classes matter for design: **identification**
 (find a record from attributes - a 1:N search) and **verification** (confirm a
@@ -105,6 +149,12 @@ claim about a known identity - a 1:1 check).
   million, that combination is not reliably unique. Treat a demographic match as
   a candidate, not a confirmation, and never as an authentication factor on its
   own.
+- **Fingerprint is not the only biometric route.** Where a solution needs to
+  confirm a live person and cannot rely on fingerprint capture - no reader, worn
+  prints, a remote or self-service channel - facial authentication with liveness
+  through NINAuth or a verification partner covers the same requirement. Design
+  for both where the population and the channel make fingerprint capture
+  unreliable.
 
 ## Fingerprint position codes
 
