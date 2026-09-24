@@ -26,6 +26,12 @@ const features: {
       'The compute node – 8× H200 SXM5, capacity, software/platform stack, and how workloads are allocated.',
   },
   {
+    title: 'Integration & Governance',
+    href: '/docs/integration',
+    description:
+      'Reusing existing ecosystem assets, dataset readiness and training standards, and the DPI integration toolkit.',
+  },
+  {
     title: 'Templates',
     href: '/docs/templates',
     description:
@@ -76,9 +82,9 @@ function FeatureCard({
 
 export function HomeHero() {
   return (
-    <div className="not-prose mx-auto flex w-full max-w-5xl flex-col">
+    <div className="not-prose mx-auto flex w-full flex-col">
       {/* Hero */}
-      <section className="flex flex-col items-center gap-6 py-12 text-center sm:py-16">
+      <section className="mx-auto flex w-full max-w-5xl flex-col items-center gap-6 py-12 text-center sm:py-16">
         <span className="inline-flex items-center gap-2 rounded-full border border-fd-border px-3 py-1 text-xs text-fd-muted-foreground">
           Nigeria AI Scaling Hub · Technical Documentation
         </span>
@@ -112,14 +118,14 @@ export function HomeHero() {
       </section>
 
       {/* Highlighted GPU / compute specs */}
-      <section className="grid grid-cols-2 divide-fd-border rounded-xl border border-fd-border sm:grid-cols-4 sm:divide-x">
+      <section className="mx-auto grid w-full max-w-5xl grid-cols-2 divide-fd-border rounded-xl border border-fd-border sm:grid-cols-4 sm:divide-x">
         {stats.map((s) => (
           <Stat key={s.label} value={s.value} label={s.label} />
         ))}
       </section>
 
       {/* Feature cards */}
-      <section className="py-14">
+      <section className="mx-auto w-full max-w-7xl py-14">
         <div className="mb-8 text-center">
           <h2 className="text-2xl font-bold text-fd-foreground">
             Everything a national AI programme needs
@@ -129,7 +135,7 @@ export function HomeHero() {
             put it to work.
           </p>
         </div>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
           {features.map((f) => (
             <FeatureCard key={f.href} {...f} />
           ))}
