@@ -130,8 +130,8 @@ can compare like with like:
 - **Constraints** - principles, not a compliance checklist; they must be
   translated into concrete controls per solution.
 - **Fit-for-purpose** - mandatory reading for any solution that exposes national
-  data to an AI client. Pairs directly with the sandbox integration toolkit and
-  [API playbooks](/docs/integration/sandbox-toolkit).
+  data to an AI client. Pairs directly with the
+  [Integration Toolkit and API Playbooks](/docs/integration/integration-toolkit).
 
 ### Platforms and middleware
 
@@ -160,17 +160,17 @@ can compare like with like:
   stack (NIN, BVN, Liveness), open-source tools (DHIS2, PostgreSQL), APIs
   (Maps), apps (QR, notifications), and network channels (SMS, USSD, IVR,
   voice).
-- **Technical prerequisites** - sandbox credentials; an application capable of
-  calling REST APIs.
-- **Access pathway** - via the sandbox programme and its successor arrangements
-  under NAISH.
-- **Constraints** - sandbox credentials and data are for **testing**, not
-  production identity verification; production DPI access requires separate
-  authorisation from the relevant platform owner.
-- **Fit-for-purpose** - the standard environment for validating DPI integration
-  patterns before requesting production access. See the
-  [Sandbox Integration Toolkit and API Playbooks](/docs/integration/sandbox-toolkit)
-  for the concrete workflows.
+- **Technical prerequisites** - not applicable; NAISH does not operate or use
+  this environment.
+- **Access pathway** - through the AI-DPI Sandbox programme and its operators.
+  It is not a NAISH service, and Hub teams have no standing access to it.
+- **Constraints** - a separate programme with its own participants, credentials,
+  and terms. Nothing here should be read as an integration route available to
+  Hub solution teams.
+- **Fit-for-purpose** - catalogued as **prior art**, not as a resource to adopt.
+  Its documented findings on integration cost, vendor fragmentation, and
+  regulatory complexity informed the requirements in the
+  [Integration Toolkit and API Playbooks](/docs/integration/integration-toolkit).
 
 #### CommCare and Open Chat Studio (Dimagi)
 
@@ -273,7 +273,8 @@ The asset is a model or set of weights adapted to the use case.
 The asset is a running platform or API the solution calls at runtime - a DPI
 service, an MCP middleware layer, a messaging channel.
 
-- Validate the integration in the sandbox before requesting production access.
+- Validate the integration against mocks and recorded contracts before
+  requesting production access from the platform owner.
 - Apply the bounded-tool-surface pattern: purpose-built read tools, no open
   query access, API-key or token gating.
 - Define timeout, retry, and failure behaviour - a national service cannot fail
@@ -330,7 +331,8 @@ Before integrating any ecosystem asset:
 3. Verify licence and consent terms cover the intended use.
 4. Confirm the access pathway and begin access negotiation early.
 5. Choose the integration pathway (data, model, API, or pattern) explicitly.
-6. Validate in the sandbox before touching production DPI or production data.
+6. Validate against mocks and recorded contracts before touching production DPI
+   or production data.
 7. Record the asset and its version in workload metadata as a tracked
    dependency.
 8. Attach any governance outputs (GenAIGov report, bias audit, data card) to the

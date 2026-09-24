@@ -1,0 +1,147 @@
+---
+title: "Use Case: Patient Identity in Health Records"
+description: A reference workflow for resolving and confirming a patient identity at the point of care - assurance sizing, the consent-first call sequence, offline and no-match paths, and the fields a health record may retain.
+---
+
+A health-record solution must answer one question before it does anything else:
+**is this the person whose record I am about to open?** Get it wrong and a
+clinician reads someone else's history, or writes a diagnosis into the wrong
+file. Get it wrong in the other direction - demand a fingerprint from a patient
+whose hands are damaged, at a clinic with no working reader - and the patient is
+turned away.
+
+This is a reference workflow for that decision, applying the
+[NIMC Identity API](/docs/integration/integration-toolkit/nimc-identity-api) to
+the [health-records template](/docs/templates/health-records).
+
+## Assurance decision
+
+| Action | Harm if wrong | Level | Method |
+| --- | --- | --- | --- |
+| Show general health information | None | None | No identity call |
+| Register a new patient | Duplicate record created | Medium | `searchByNIN` |
+| Open an existing clinical record | Wrong history read; wrong care given | **High** | `verifyFingerWithData` |
+| Write a diagnosis, prescription, or result | Harm to two patients at once | **High** | `verifyFingerWithData` |
+
+Reading and writing clinical data is irreversible in effect - a wrong entry
+propagates into later care - so it sits at high assurance. Registration sits a
+step lower: a duplicate record is a data-quality problem, correctable, not a
+clinical one.
+
+## Workflow: first registration
+
+1. **Explain and record consent.** The patient is told the clinic will verify
+   their identity against the national register, for the purpose of creating a
+   health record. Consent is recorded with a timestamp, the purpose, and the
+   staff member who obtained it.
+2. **Collect the NIN** from the patient and validate its format locally.
+3. **Call `searchByNIN`** with the cached token.
+4. **On match**, extract only the fields the record needs (see below) and create
+   the patient record with an **internal record ID** as its key. The NIN is
+   stored once, encrypted, as a verification reference - never as the primary
+   key, and never displayed in the clinical UI.
+5. **Enrol the biometric reference** for subsequent visits: capture a fingerprint
+   and confirm it against the NIN with `verifyFingerWithData`, so that the
+   patient's later visits need no NIN re-entry.
+6. **Record the audit event**: purpose, outcome, staff member, timestamp,
+   correlation ID. Identifiers hashed.
+
+## Workflow: returning patient at the point of care
+
+1. **Confirm consent** for this visit's lookup - consent is per lookup and
+   purpose, not captured once at registration and reused indefinitely.
+2. **Capture the fingerprint** at the enrolled position.
+3. **Call `verifyFingerWithData`** with the NIN held against the record, the
+   base64 fingerprint, and the position code.
+4. **On a confirmed match**, open the record and let care proceed.
+5. **Discard the biometric** from memory immediately. It is never written to
+   disk, never queued, never logged.
+6. **Record the audit event.**
+
+The fingerprint is compared against the identity the record already claims - a
+1:1 check. The solution never searches the national register for whoever matches
+the print in front of it.
+
+## Fields a health record may retain
+
+| Field | Retain | Why |
+| --- | --- | --- |
+| `surname`, `firstname`, `middlename` | Yes | Patient identification on the record |
+| `birthdate` | Yes | Clinically necessary - dosing, risk, screening intervals |
+| `gender` | Yes | Clinically necessary |
+| `nin` | Yes, encrypted, not as a key | Verification reference for later visits |
+| `telephoneno` | Yes, if the service contacts patients | Follow-up and results |
+| `photo`, `signature` | **No** | Not clinically necessary; high-sensitivity biometric data |
+| Next-of-kin block | Only if the service uses emergency contacts, and captured directly from the patient in preference | Available in `demoData`, rarely justified by clinical need |
+| `religion`, `profession`, `educationallevel`, `emplymentstatus`, `maritalstatus` | **No** | Not clinically necessary; retaining them is exactly the over-collection the NDPA prohibits |
+| Residence and origin blocks | Only the fields a catchment or follow-up workflow actually uses | Not "the whole address block because it was returned" |
+
+The response arrives as a full `demoData` record. Minimisation happens at the
+integration boundary - the fields above are extracted, the rest is discarded
+before anything reaches clinical storage.
+
+## Failure paths
+
+### No match on NIN
+
+Causes: mistyped NIN, a name recorded differently at registration, genuine
+non-enrolment. **A patient is never refused care because the register did not
+match.**
+
+The flow: re-enter the NIN once; if it still does not match, create the record as
+**unverified**, flagged for later verification, and proceed with care. An
+unverified record is usable clinically and visibly marked as unverified, so that
+it is not later mistaken for a confirmed identity.
+
+### Fingerprint does not match
+
+Causes: worn or damaged fingerprints (common among manual workers, the elderly,
+and patients with certain conditions), a poor reader, a wet or dirty finger.
+
+The flow: retry once, then offer an alternative finger if another position was
+enrolled. On continued failure, fall back to **staff-attested identification** -
+a named clinician confirms the patient by other means and the record notes who
+attested and why. Two consecutive biometric failures is a service-design signal,
+not a fraud signal.
+
+### eNVS unreachable
+
+VPN down, upstream outage, clinic offline. Verification **fails closed** - the
+solution never assumes a pass - but **care does not stop**.
+
+The degraded mode, agreed in advance with the health authority: the clinician
+proceeds using the record they can identify by other means, entries are written
+to a queue marked *pending verification*, and the queue is reconciled when the
+service returns. Whether this is acceptable, and for which actions, is a clinical
+governance decision recorded before launch.
+
+## What the AI layer sees
+
+Where the solution has an AI assistant - summarising history, suggesting
+follow-up questions, drafting patient instructions - it operates on the clinical
+record, never on the identity record:
+
+| Agent receives | Agent never receives |
+| --- | --- |
+| Internal record ID | NIN |
+| Clinical history and observations | `demoData`, photo, signature |
+| Age, derived from `birthdate` | Next-of-kin details |
+| "Identity verified" / "unverified" flag | The fingerprint or its template |
+
+The agent cannot call eNVS. Verification happens in the solution's integration
+layer and reaches the agent only as a flag, through a bounded tool following the
+[DiCert MCP](/docs/projects-archive/archive/dicert-mcp) pattern.
+
+## Pre-launch checklist
+
+1. Assurance levels agreed per action with the health authority, in writing.
+2. Consent wording and storage reviewed for clinical context and NDPA
+   compliance.
+3. Field retention list signed off; the discard step tested against a full
+   `demoData` response.
+4. No-match path tested end to end, including the unverified-record route.
+5. Biometric failure path tested, including the staff-attested fallback.
+6. Degraded mode agreed with clinical governance and the reconciliation queue
+   tested.
+7. NIN confirmed absent from logs, URLs, analytics, and the clinical UI.
+8. Agent tool surface reviewed: no identity fields reachable by the model.

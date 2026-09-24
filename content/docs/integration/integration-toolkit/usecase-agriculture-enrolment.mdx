@@ -1,0 +1,144 @@
+---
+title: "Use Case: Farmer Enrolment"
+description: A reference workflow for low-assurance enrolment over phone and chat channels - why a phone number is not an identity, when an identity call is justified at all, and how to avoid excluding the farmers a service exists to reach.
+---
+
+An agricultural advisory service reaches farmers over WhatsApp, SMS, USSD, and
+IVR. Most of what it does - answering a question about pest control in Hausa,
+pushing a planting-window alert - needs no identity at all. The temptation is to
+verify everyone at enrolment anyway, because the API is there.
+
+Resist it. Every verification step placed in front of a smallholder farmer on a
+feature phone is a point where enrolment fails. The design question is not "how
+do we verify?" but **"which actions actually need an identity, and how little
+will do?"**
+
+This is a reference workflow applying the
+[NIMC Identity API](/docs/integration/integration-toolkit/nimc-identity-api) to
+the [agriculture template](/docs/templates/agriculture).
+
+## Assurance decision
+
+| Action | Harm if wrong | Level | Method |
+| --- | --- | --- | --- |
+| Answer an agronomic question | None | **None** | No identity call |
+| Send seasonal advisory content | None | **None** | No identity call |
+| Remember a farmer's crop, location, and history | Wrong personalisation; mild privacy leak | **Low** | Channel identifier only |
+| Link to a cooperative or extension officer's roster | Wrong person joins a group | **Low-Medium** | Channel identifier; `searchByDemoPhone` only if the roster requires it |
+| Disburse a subsidy, input voucher, or payment | Financial loss; fraud | **High** | `verifyFingerWithData` against a claimed NIN |
+
+Most of the service sits in the top two rows. An identity call is justified at
+the bottom row, where money moves - and the biometric burden is proportionate
+there because the consequence is real and the interaction is usually in person,
+at an agro-dealer or extension point with a device present.
+
+## The default: no identity call at all
+
+Advisory content is not personal data. A farmer asking when to plant maize in
+Kaduna needs an answer, not an account. Design the service so that:
+
+- **Advisory works anonymously**, on first contact, with no enrolment step.
+- **Personalisation is opt-in** and earns its cost - the farmer volunteers crop,
+  location, and farm size because the advice visibly improves.
+- **Identity verification appears only at the step that requires it**, with the
+  reason stated in the farmer's own language.
+
+A service that demands a NIN before answering a question will be abandoned at
+that screen by the users it was funded to reach.
+
+## Low assurance: the channel identifier
+
+For remembering a farmer between conversations, the **phone number the message
+arrived on** is the identifier. It requires no API call, no consent to query the
+national register, and no personal data beyond what the channel already carries.
+
+`searchByDemoPhone` resolves a registered phone number to an identity in the
+national register. It is a **1:N identification** call and returns a full
+`demoData` record. For personalising farming advice, that is disproportionate:
+it queries national identity infrastructure to solve a problem the channel
+already solved. Use it only where a roster or programme genuinely requires the
+registered identity behind a number, and record why at the governance gate.
+
+## High assurance: the payment or entitlement step
+
+When a subsidy, voucher, or input disbursement is at stake:
+
+1. **State the purpose plainly**, in the farmer's language: what is being
+   verified, why, and by whom. Consent is recorded with a timestamp and purpose.
+2. **The farmer asserts their NIN** - spoken to an extension officer, entered at
+   an agro-dealer terminal, or captured at a cooperative office.
+3. **Capture a fingerprint** at a known position on the device present.
+4. **Call `verifyFingerWithData`** with the NIN, the base64 fingerprint, and the
+   position code - a 1:1 confirmation of the claim, not a search of the register.
+5. **Retain only what the disbursement record needs**: a verification outcome, a
+   timestamp, and the encrypted NIN as reference. Not the photo, not the
+   next-of-kin block, not the residence block.
+6. **Discard the biometric** immediately after the call.
+7. **Record the audit event** with identifiers hashed.
+
+## Failure paths
+
+### Fingerprint does not match
+
+Farming is manual work, and manual work wears fingerprints down. Expect a
+materially higher no-match rate in this population than in an office setting -
+and design for it as the normal case, not the exception.
+
+The flow: retry once; try a second finger position; then route to a
+**documented manual verification** by a named extension officer or cooperative
+official, recorded against the disbursement. A farmer who cannot produce a usable
+fingerprint is not a fraud case, and the workflow must not treat them as one.
+
+### No NIN, or a NIN that does not match
+
+Enrolment in the national register is not universal, and records can be stale.
+The service must have a documented route for an unenrolled farmer: a lower-value
+entitlement tier, a referral to enrolment, or officer attestation - agreed with
+the programme owner before launch.
+
+### eNVS or the network is unreachable
+
+Rural connectivity is the norm, not the edge case. Verification **fails closed**
+- the disbursement is not released on an assumed pass - but the farmer is not
+sent home without a path. Queue the verification, issue a receipt or reference,
+and complete on reconnection. Whether value can be released before verification
+completes is the programme owner's risk decision, taken and written down in
+advance.
+
+### Advisory continues regardless
+
+Whatever happens at the payment step, the advisory service keeps working. A
+verification failure must never degrade the free, anonymous advice the farmer
+came for.
+
+## What the AI layer sees
+
+The advisory agent - a multilingual assistant over WhatsApp, SMS, or IVR - has no
+identity access at all:
+
+| Agent receives | Agent never receives |
+| --- | --- |
+| An opaque conversation ID | The phone number as an identifier of record |
+| Crop, location, farm size the farmer volunteered | NIN or `demoData` |
+| "Eligible for programme X" as a flag | The verification record or biometric |
+| Language preference | Any national-register field |
+
+Verification and disbursement sit outside the conversational layer. The agent
+learns only that an entitlement applies, through a bounded tool following the
+[DiCert MCP](/docs/projects-archive/archive/dicert-mcp) pattern - never who the
+farmer is in the national register.
+
+## Pre-launch checklist
+
+1. Documented justification for every step that calls eNVS - and confirmation
+   that advisory does not.
+2. Confirmation that the channel identifier gates nothing of financial
+   consequence.
+3. Consent wording translated into each supported language and tested for
+   comprehension over voice as well as text.
+4. Biometric failure path tested, including the officer-attested fallback.
+5. Route for unenrolled farmers agreed with the programme owner.
+6. Offline and queued-verification behaviour tested on a real rural connection
+   profile, not on office wifi.
+7. Field retention list signed off; full `demoData` discarded at the boundary.
+8. Agent tool surface reviewed: no identity fields reachable by the model.

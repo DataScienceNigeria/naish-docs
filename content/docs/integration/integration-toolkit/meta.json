@@ -1,0 +1,10 @@
+{
+  "title": "DPI Integration Toolkit",
+  "pages": [
+    "index",
+    "nimc-identity-api",
+    "usecase-health-records",
+    "usecase-agriculture-enrolment",
+    "usecase-education-credentials"
+  ]
+}
