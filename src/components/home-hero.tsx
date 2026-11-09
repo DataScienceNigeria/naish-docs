@@ -83,38 +83,66 @@ function FeatureCard({
 export function HomeHero() {
   return (
     <div className="not-prose mx-auto flex w-full flex-col">
-      {/* Hero */}
-      <section className="mx-auto flex w-full max-w-5xl flex-col items-center gap-6 py-12 text-center sm:py-16">
-        <span className="inline-flex items-center gap-2 rounded-full border border-fd-border px-3 py-1 text-xs text-fd-muted-foreground">
-          Nigeria AI Scaling Hub · Technical Documentation
-        </span>
-        <h1 className="max-w-3xl text-4xl font-bold tracking-tight text-fd-foreground sm:text-5xl">
-          Sovereign GPU compute for national-scale AI
-        </h1>
-        <p className="max-w-2xl text-lg text-fd-muted-foreground">
-          A shared, governed{' '}
-          <span className="text-fd-primary">8× NVIDIA H200</span> node hosted in
-          Nigeria — <span className="text-fd-primary">high-performance</span>,{' '}
-          <span className="text-fd-primary">multi-tenant</span>, and built to
-          power AI for health, agriculture, education, and public services.
-        </p>
-        <div className="flex flex-wrap items-center justify-center gap-3">
-          <Link
-            href="/docs"
-            className="inline-flex items-center rounded-lg bg-fd-primary px-5 py-2.5 text-sm font-medium text-white no-underline transition-opacity hover:opacity-90"
-          >
-            Explore the Hub →
-          </Link>
-          <Link
-            href="/docs/infrastructure/compute-node"
-            className="inline-flex items-center rounded-lg border border-fd-border px-5 py-2.5 text-sm font-medium text-fd-foreground no-underline transition-colors hover:bg-fd-accent/50"
-          >
-            Infrastructure specs
-          </Link>
+      {/* Hero: page background with a faint brand-green glow. Colours come
+          from the theme tokens, so navy leads in light mode, green in dark. */}
+      <section className="relative isolate mx-auto w-full max-w-6xl px-6 py-12 text-center sm:py-16">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 -z-10"
+          style={{
+            background:
+              'radial-gradient(30% 40% at 25% 65%, rgb(37 196 125 / 0.14), transparent 70%), radial-gradient(30% 40% at 75% 30%, rgb(37 196 125 / 0.09), transparent 70%)',
+          }}
+        />
+        <div className="flex flex-col items-center gap-6">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/brand/naish-logo.png"
+            alt="Nigeria AI Scaling Hub"
+            width={180}
+            height={60}
+            className="h-15 w-auto dark:hidden"
+          />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/brand/naish-logo-dark.png"
+            alt="Nigeria AI Scaling Hub"
+            width={180}
+            height={60}
+            className="hidden h-15 w-auto dark:block"
+          />
+          <span className="inline-flex items-center gap-2 rounded-full border border-fd-border px-3 py-1 text-xs text-fd-muted-foreground">
+            Technical Documentation
+          </span>
+          <h1 className="max-w-3xl text-4xl font-bold tracking-tight text-fd-foreground sm:text-5xl">
+            Sovereign GPU compute for national-scale AI
+          </h1>
+          <p className="max-w-2xl text-lg text-fd-muted-foreground">
+            A shared, governed{' '}
+            <span className="text-fd-primary">8× NVIDIA H200</span> node hosted
+            in Nigeria:{' '}
+            <span className="text-fd-primary">high-performance</span>,{' '}
+            <span className="text-fd-primary">multi-tenant</span>, and built to
+            power AI for health, agriculture, education, and public services.
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <Link
+              href="/docs"
+              className="inline-flex items-center rounded-lg bg-fd-primary px-5 py-2.5 text-sm font-semibold text-fd-primary-foreground no-underline transition-opacity hover:opacity-90"
+            >
+              Explore the Hub →
+            </Link>
+            <Link
+              href="/docs/infrastructure/compute-node"
+              className="inline-flex items-center rounded-lg border border-fd-border px-5 py-2.5 text-sm font-medium text-fd-foreground no-underline transition-colors hover:bg-fd-accent/50"
+            >
+              Infrastructure specs
+            </Link>
+          </div>
+          <code className="rounded-lg border border-fd-border bg-fd-muted px-4 py-2 font-mono text-sm text-fd-muted-foreground">
+            8× NVIDIA H200 · Abuja, Nigeria.
+          </code>
         </div>
-        <code className="rounded-lg border border-fd-border bg-fd-muted px-4 py-2 font-mono text-sm text-fd-muted-foreground">
-          8× NVIDIA H200 · Abuja, Nigeria.
-        </code>
       </section>
 
       {/* Highlighted GPU / compute specs */}
