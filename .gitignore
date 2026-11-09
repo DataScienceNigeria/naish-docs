@@ -25,3 +25,6 @@ yarn-error.log*
 .vercel
 next-env.d.ts
 AGENTS.md
+
+# brand source files (32MB PDF, full-size logos)
+/branding-temp/
